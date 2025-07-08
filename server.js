@@ -1,11 +1,9 @@
 const express = require('express');
+const endpoints = require('./routes/endpoints')
+const port =  3000;
+
 const app = express();
 
-const PORT =  3000;
+app.use(endpoints);
 
-app.get('/todo', (req, res) => {
-    res.json({"nodes": "hello world"});
-    res.end();
-})
-
-app.listen(PORT, () => {console.log(`Server listening on port ${PORT}`)});
+app.listen(port, () => {console.log(`Server listening on port ${port}`)});
