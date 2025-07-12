@@ -1,32 +1,11 @@
   services:
     db:
-      image: mysql:8.0.42-oracle
+      image: mysql:8.0-oracle
       container_name: mysql-db   
       environment:
-        MYSQL_ROOT_PASSWORD: my_secret_password
+        MYSQL_ROOT_PASSWORD: root_password
         MYSQL_DATABASE: server_db
         MYSQL_USER: user
         MYSQL_PASSWORD: password
       ports:
         - "3307:3306"
-      volumes:
-        - dbdata:/var/lib/mysql
-      networks:
-        - app-network              
-    phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      container_name: myadmin
-      depends_on:
-        - db
-      environment:
-        PMA_HOST: db
-        MYSQL_ROOT_PASSWORD: my_secret_password
-      ports:
-        - 8081:80
-      networks:
-        - app-network
-  volumes:
-    dbdata:
-  networks:
-    app-network:
-      driver: bridge

@@ -1,86 +1,21 @@
-const express = require('express');
+import express from "express";
+import {
+    getTasks,
+    getTask,
+    createTask,
+    updateTask,
+    deleteTask,
+} from '../controllers/taskController.js';
 const router = express.Router();
-const { PrismaClient } = require('../generated/prisma');
 
-const prisma = new PrismaClient();
+router.get('/todo', getTasks)
 
-router.get('/todo', async (req,res)=>{
-    try {
-        const tasks = await prisma.task.findMany()
-        res.json(tasks);
-    }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
-})
+router.get('/todo/:id', getTask)
 
-router.get('/todo/:id', async (req,res)=>{
-    const id = req.params.id;
-    try {
-        const task = await prisma.task.findFirst({
-            where: {
-                id: parseInt(id)
-            }
-        })
-        res.json(task);
-    }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
-})
+router.post('/todo', createTask)
 
-router.post('/todo', async (req, res) => {
-    try {
-        const {task} = req.body;
-        const newTask =
-            await prisma.task.create({data: {task}});
-        console.log('Created post:', newTask);
-    }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
-})
+router.put('/todo/:id', updateTask)
 
-router.put('/todo/:id', async (req,res)=>{
-    const id = req.params.id;
-    const {task} = req.body;
-    try {
-        const updateTask = await prisma.task.update({
-            where: {
-                id: parseInt(id),
-            },
-            data: {task},
-        })
-        console.log('Updated post:', updateTask);
-    }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
-})
+router.delete('/todo/:id', deleteTask)
 
-router.delete('/todo/:id', async (req, res)=>{
-    const id = req.params.id;
-    try {
-        const deleteTask = await prisma.task.delete({
-                where: {
-                    id: parseInt(id)
-                }
-        })
-        console.log('Deleted post:', deleteTask)
-    }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
-})
-
-module.exports = router;
+export default router;
