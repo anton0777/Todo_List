@@ -5,10 +5,26 @@ const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 
 router.get('/todo', async (req,res)=>{
-    // res.json({nodes: "hello world"});
     try {
         const tasks = await prisma.task.findMany()
         res.json(tasks);
+    }
+    catch (err) {
+        res.status(500);
+        console.log(err);
+    }
+    res.end();
+})
+
+router.get('/todo/:id', async (req,res)=>{
+    const id = req.params.id;
+    try {
+        const task = await prisma.task.findFirst({
+            where: {
+                id: parseInt(id)
+            }
+        })
+        res.json(task);
     }
     catch (err) {
         res.status(500);
@@ -31,15 +47,34 @@ router.post('/todo', async (req, res) => {
     res.end();
 })
 
-router.get('/todo/:id', async (req,res)=>{
+router.put('/todo/:id', async (req,res)=>{
+    const id = req.params.id;
+    const {task} = req.body;
+    try {
+        const updateTask = await prisma.task.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {task},
+        })
+        console.log('Updated post:', updateTask);
+    }
+    catch (err) {
+        res.status(500);
+        console.log(err);
+    }
+    res.end();
+})
+
+router.delete('/todo/:id', async (req, res)=>{
     const id = req.params.id;
     try {
-        const task = await prisma.task.findFirst({
-            where: {
-                id: parseInt(id)
-            }
+        const deleteTask = await prisma.task.delete({
+                where: {
+                    id: parseInt(id)
+                }
         })
-        res.json(task);
+        console.log('Deleted post:', deleteTask)
     }
     catch (err) {
         res.status(500);
