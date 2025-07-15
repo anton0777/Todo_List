@@ -1,46 +1,46 @@
-import {Task, CreateTask, UpdateTask} from '../validators/taskValidator.js';
+import {User, CreateUser, UpdateUser} from "../validators/userValidator.js"
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
-export const getTasks = async (req,res)=>{
-    try {
-        const tasks = await prisma.task.findMany()
-        res.json(tasks);
+export const getUsers = async (req,res)=>{
+    try{
+        const user = await prisma.user.findMany();
+        res.json(user);
     }
-    catch (err) {
+    catch(err){
         res.status(500);
         console.log(err);
     }
     res.end();
-};
+}
 
-export const getTask = async (req,res)=>{
+export const getUser = async (req,res)=>{
     try {
         const id = req.params.id;
-        const task = await prisma.task.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 id: parseInt(id)
             }
         });
-        res.json(task);
+        res.json(user);
     }
     catch (err) {
         res.status(500);
         console.log(err);
     }
     res.end();
-};
+}
 
-export const createTask = async (req, res) => {
+export const createUser = async (req, res) => {
     try {
-        const parsed = CreateTask.safeParse(req.body);
+        const parsed = CreateUser.safeParse(req.body);
         if(parsed.error){
             throw parsed.error;
         }
-        const newTask = await prisma.task.create({
-            data: parsed.data
-        });
-        console.log('Created post:', newTask);
+        const newUser = await prisma.user.create({
+                data: parsed.data
+            });
+        console.log('Created post:', newUser);
     }
     catch (err) {
         res.status(500);
@@ -49,20 +49,20 @@ export const createTask = async (req, res) => {
     res.end();
 };
 
-export const updateTask = async (req,res)=>{
+export const updateUser = async (req,res)=>{
     try {
         const id = req.params.id;
-        const parsed = UpdateTask.safeParse(req.body);
+        const parsed = UpdateUser.safeParse(req.body);
         if(parsed.error){
             throw parsed.error;
         }
-        const updateTask = await prisma.task.update({
+        const updateUser = await prisma.user.update({
             where: {
                 id: parseInt(id),
             },
-            data: parsed.data,
+            data: parsed.data
         })
-        console.log('Updated post:', updateTask);
+        console.log('Updated post:', updateUser);
     }
     catch (err) {
         res.status(500);
@@ -71,15 +71,15 @@ export const updateTask = async (req,res)=>{
     res.end();
 };
 
-export const deleteTask = async (req, res)=>{
+export const deleteUser = async (req, res)=>{
     try {
         const id = req.params.id;
-        const deleteTask = await prisma.task.delete({
+        const deleteUser = await prisma.user.delete({
             where: {
                 id: parseInt(id)
             }
         })
-        console.log('Deleted post:', deleteTask)
+        console.log('Deleted post:', deleteUser)
     }
     catch (err) {
         res.status(500);
