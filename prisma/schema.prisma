@@ -4,17 +4,17 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  password  String
-  name      String?
-  tasks     Task[]
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String?
+  tasks    Task[]
 }
 
 model Task {
@@ -22,9 +22,12 @@ model Task {
   description String
   done        Boolean  @default(false)
   userId      Int
-  user        User    @relation(fields: [userId], references: [id])
   parentId    Int?
+  createdAt   DateTime @default(now())
   parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
   subtasks    Task[]   @relation("SubTasks")
-  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([parentId], map: "Task_parentId_fkey")
+  @@index([userId], map: "Task_userId_fkey")
 }
