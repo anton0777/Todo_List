@@ -2,10 +2,32 @@ import {Task, CreateTask, UpdateTask} from '../validators/taskValidator.js';
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
+async function getTaskWithSubtasks(taskId) {
+    const task = await prisma.task.findUnique({
+        where: { id: taskId },
+        include: { subtasks: true }
+    });
+
+    task.subtasks = await Promise.all(
+        task.subtasks.map(async subtask => {
+            return await getTaskWithSubtasks(subtask.id);
+        })
+    );
+
+    return task;
+}
+
 export const getTasks = async (req,res)=>{
     try {
-        const tasks = await prisma.task.findMany()
-        res.json(tasks);
+        const rootTasks = await prisma.task.findMany({
+            where: { parentId: null }
+        });
+
+        const tasksWithSubtasks = await Promise.all(
+            rootTasks.map(task => getTaskWithSubtasks(task.id))
+        );
+
+        res.json(tasksWithSubtasks);
     }
     catch (err) {
         res.status(500);
@@ -33,12 +55,9 @@ export const getTask = async (req,res)=>{
 
 export const createTask = async (req, res) => {
     try {
-        const parsed = CreateTask.safeParse(req.body);
-        if(parsed.error){
-            throw parsed.error;
-        }
+        const parsed = await CreateTask.parseAsync(req.body);
         const newTask = await prisma.task.create({
-            data: parsed.data
+            data: parsed
         });
         console.log('Created post:', newTask);
     }
@@ -52,15 +71,12 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req,res)=>{
     try {
         const id = req.params.id;
-        const parsed = UpdateTask.safeParse(req.body);
-        if(parsed.error){
-            throw parsed.error;
-        }
+        const parsed = await UpdateTask.parseAsync(req.body);
         const updateTask = await prisma.task.update({
             where: {
                 id: parseInt(id),
             },
-            data: parsed.data,
+            data: parsed,
         })
         console.log('Updated post:', updateTask);
     }
