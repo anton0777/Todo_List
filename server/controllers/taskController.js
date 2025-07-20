@@ -9,7 +9,7 @@ async function getTaskWithSubtasks(taskId) {
     });
 
     task.subtasks = await Promise.all(
-        task.subtasks.map(async subtask => {
+        task.subtasks.map(async (subtask) => {
             return await getTaskWithSubtasks(subtask.id);
         })
     );
@@ -26,7 +26,7 @@ export const getTasks = async (req,res)=>{
         const tasksWithSubtasks = await Promise.all(
             rootTasks.map(task => getTaskWithSubtasks(task.id))
         );
-
+        console.log('get',tasksWithSubtasks);
         res.json(tasksWithSubtasks);
     }
     catch (err) {
@@ -39,11 +39,14 @@ export const getTasks = async (req,res)=>{
 export const getTask = async (req,res)=>{
     try {
         const id = req.params.id;
-        const task = await prisma.task.findUnique({
-            where: {
-                id: parseInt(id)
-            }
-        });
+        // const task = await prisma.task.findUnique({
+        //     where: {
+        //         id: parseInt(id)
+        //     }
+        // });
+        const task = await getTaskWithSubtasks(parseInt(id));
+
+        console.log('get ',task);
         res.json(task);
     }
     catch (err) {

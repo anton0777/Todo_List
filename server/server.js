@@ -1,7 +1,12 @@
 import express from 'express';
 import tasks from './routes/tasks.js';
 import users from './routes/users.js';
-const port =  3000;
+import dotenv from 'dotenv';
+dotenv.config({ path: './.env' });
+
+console.log(process.env.DATABASE_URL);
+
+const port = 3000;
 
 const app = express();
 

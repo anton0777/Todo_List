@@ -1,6 +1,6 @@
   services:
     db:
-      image: mysql:8.0-oracle
+      image: mysql:8.0.42
       container_name: mysql-db   
       environment:
         MYSQL_ROOT_PASSWORD: root_password
