@@ -1,0 +1,14 @@
+model Task {
+  id          Int      @id @default(autoincrement())
+  description String
+  done        Boolean  @default(false)
+  userId      Int
+  parentId    Int?
+  createdAt   DateTime @default(now())
+  parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
+  subtasks    Task[]   @relation("SubTasks")
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([parentId], map: "Task_parentId_fkey")
+  @@index([userId], map: "Task_userId_fkey")
+}

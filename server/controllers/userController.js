@@ -33,12 +33,9 @@ export const getUser = async (req,res)=>{
 
 export const createUser = async (req, res) => {
     try {
-        const parsed = CreateUser.safeParse(req.body);
-        if(parsed.error){
-            throw parsed.error;
-        }
+        const parsed = await CreateUser.parseAsync(req.body);
         const newUser = await prisma.user.create({
-                data: parsed.data
+                data: parsed
             });
         console.log('Created post:', newUser);
     }
@@ -52,15 +49,12 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req,res)=>{
     try {
         const id = req.params.id;
-        const parsed = UpdateUser.safeParse(req.body);
-        if(parsed.error){
-            throw parsed.error;
-        }
+        const parsed = await UpdateUser.parseAsync(req.body);
         const updateUser = await prisma.user.update({
             where: {
                 id: parseInt(id),
             },
-            data: parsed.data
+            data: parsed
         })
         console.log('Updated post:', updateUser);
     }
