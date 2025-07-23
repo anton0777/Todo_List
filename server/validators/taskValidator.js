@@ -2,6 +2,7 @@ import {z} from "zod";
 
 export const Task = z.object({
     id: z.number(),
+    title: z.string(),
     description: z.string(),
     done: z.boolean().optional(),
     userId: z.number(),
@@ -10,6 +11,7 @@ export const Task = z.object({
 });
 
 export const CreateTask = z.object({
+    title: z.string(),
     description: z.string(),
     done: z.boolean().optional(),
     userId: z.number(),
@@ -17,6 +19,7 @@ export const CreateTask = z.object({
 });
 
 export const UpdateTask = z.object({
+    title: z.string().optional(),
     description: z.string().optional(),
     done: z.boolean().optional()
 });

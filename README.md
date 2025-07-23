@@ -10,6 +10,9 @@ A simple todo-list application.
 * Express middleware is used to handle requests, routes
 * Prisma ORM connects to a MySQL database and provides schema modeling
 * MySQL is used as the database
+* Vite + React + Tailwind CSS are used for the frontend
+
+---
 
 ## Docker Guide
 
@@ -25,7 +28,9 @@ Then simply start the docker compose:
 docker compose up -d
 ```
 
-## Install
+---
+
+ ## Backend Setup
 
 `npm install` in the project root will install dependencies.
 
@@ -34,9 +39,20 @@ Generate a Prisma client based on the schema (schema.prisma) and migrate:
 npx prisma generate
 npx prisma migrate dev
 ```
-
-## Start development
-
+Start development server:
 ```
+npm run dev
+```
+
+---
+
+## Frontend Setup
+
+The frontend is located in the `client` folder.
+
+To start the frontend locally:
+```
+cd client
+npm install
 npm run dev
 ```

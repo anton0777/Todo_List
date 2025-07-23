@@ -37,7 +37,7 @@ export const createUser = async (req, res) => {
         const newUser = await prisma.user.create({
                 data: parsed
             });
-        console.log('Created post:', newUser);
+        res.json(newUser);
     }
     catch (err) {
         res.status(500);
@@ -56,7 +56,7 @@ export const updateUser = async (req,res)=>{
             },
             data: parsed
         })
-        console.log('Updated post:', updateUser);
+        res.json(updateUser);
     }
     catch (err) {
         res.status(500);
@@ -73,7 +73,6 @@ export const deleteUser = async (req, res)=>{
                 id: parseInt(id)
             }
         })
-        console.log('Deleted post:', deleteUser)
     }
     catch (err) {
         res.status(500);

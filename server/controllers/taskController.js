@@ -17,6 +17,19 @@ async function getTaskWithSubtasks(taskId) {
     return task;
 }
 
+async function deleteTaskWithSubtasks(taskId) {
+    const task = await prisma.task.findUnique({
+        where: { id: taskId },
+        include: { subtasks: true },
+    });
+
+    await Promise.all(
+        task.subtasks.map((subtask) => deleteTaskWithSubtasks(subtask.id))
+    );
+
+    await prisma.task.delete({ where: { id: taskId } });
+}
+
 export const getTasks = async (req,res)=>{
     try {
         const rootTasks = await prisma.task.findMany({
@@ -26,7 +39,6 @@ export const getTasks = async (req,res)=>{
         const tasksWithSubtasks = await Promise.all(
             rootTasks.map(task => getTaskWithSubtasks(task.id))
         );
-        console.log('get',tasksWithSubtasks);
         res.json(tasksWithSubtasks);
     }
     catch (err) {
@@ -39,14 +51,8 @@ export const getTasks = async (req,res)=>{
 export const getTask = async (req,res)=>{
     try {
         const id = req.params.id;
-        // const task = await prisma.task.findUnique({
-        //     where: {
-        //         id: parseInt(id)
-        //     }
-        // });
         const task = await getTaskWithSubtasks(parseInt(id));
 
-        console.log('get ',task);
         res.json(task);
     }
     catch (err) {
@@ -62,7 +68,7 @@ export const createTask = async (req, res) => {
         const newTask = await prisma.task.create({
             data: parsed
         });
-        console.log('Created post:', newTask);
+        res.json(newTask);
     }
     catch (err) {
         res.status(500);
@@ -81,7 +87,7 @@ export const updateTask = async (req,res)=>{
             },
             data: parsed,
         })
-        console.log('Updated post:', updateTask);
+        res.json(updateTask);
     }
     catch (err) {
         res.status(500);
@@ -90,19 +96,14 @@ export const updateTask = async (req,res)=>{
     res.end();
 };
 
-export const deleteTask = async (req, res)=>{
+export const deleteTask = async (req, res) => {
     try {
-        const id = req.params.id;
-        const deleteTask = await prisma.task.delete({
-            where: {
-                id: parseInt(id)
-            }
-        })
-        console.log('Deleted post:', deleteTask)
-    }
-    catch (err) {
-        res.status(500);
+        const id = parseInt(req.params.id);
+        await deleteTaskWithSubtasks(id);
+        res.status(204);
+    } catch (err) {
         console.log(err);
+        res.status(500);
     }
     res.end();
 };

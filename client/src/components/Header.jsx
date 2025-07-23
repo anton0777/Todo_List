@@ -1,33 +1,24 @@
-import { FaCog } from "react-icons/fa";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import SettingsModal from "./SettingsModal";
 
-const Header = ({ user }) => {
-  const [showSettings, setShowSettings] = useState(false);
+export default function Header() {
+    const { user } = useAuth();
+    const [open, setOpen] = useState(false);
 
-  return (
-    <div className="bg-white shadow-md p-4 flex justify-between items-center max-w-xl mx-auto">
-      <span className="text-lg font-semibold">{user.name}</span>
-      <div className="relative">
-        <FaCog
-          className="cursor-pointer"
-          onClick={() => setShowSettings(!showSettings)}
-        />
-        {showSettings && (
-          <div className="absolute right-0 mt-2 bg-white shadow-md text-sm p-3 w-52 z-10">
-            <button className="block w-full text-left text-[#4caf50] hover:underline">
-              Change name
-            </button>
-            <button className="block w-full text-left text-[#4caf50] hover:underline">
-              Change password
-            </button>
-            <button className="block w-full text-left text-red-500 hover:underline">
-              Log out
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default Header;
+    return (
+        <header className="bg-white shadow p-4 flex justify-between items-center">
+            <h1 className="text-xl font-bold">Todo List</h1>
+            <div className="flex items-center gap-2">
+                <span className="text-gray-700">{user?.username}</span>
+                <button
+                    onClick={() => setOpen(true)}
+                    className="text-gray-600 hover:text-gray-800"
+                >
+                    ⚙
+                </button>
+            </div>
+            {open && <SettingsModal onClose={() => setOpen(false)} />}
+        </header>
+    );
+}

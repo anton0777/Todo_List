@@ -1,11 +1,17 @@
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  done        Boolean  @default(false)
+  userId      Int
+  parentId    Int?
+  createdAt   DateTime @default(now())
+  parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
+  subtasks    Task[]   @relation("SubTasks")
+  user        User     @relation(fields: [userId], references: [id])
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  @@index([parentId], map: "Task_parentId_fkey")
+  @@index([userId], map: "Task_userId_fkey")
 }
 
 model User {
@@ -16,14 +22,13 @@ model User {
   tasks    Task[]
 }
 
-model Task {
-  id          Int      @id @default(autoincrement())
-  description String
-  done        Boolean  @default(false)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  parentId    Int?
-  parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
-  subtasks    Task[]   @relation("SubTasks")
-  createdAt   DateTime @default(now())
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }

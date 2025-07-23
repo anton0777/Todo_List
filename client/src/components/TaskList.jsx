@@ -1,49 +1,56 @@
-import { FaTrash, FaPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import TaskItem from "./TaskItem";
+import { fetchTasks, toggleTask, deleteTask } from "../api/todo";
+import { FaPlus } from "react-icons/fa";
+import NewTaskForm from "./NewTaskForm";
+import { useAuth } from "../context/AuthContext";
 
-const TaskList = () => {
+export default function TaskList() {
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const apiUrl = "/api/todo";
-      try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-        setTasks(data);
-      } catch (error) {
-        console.log("Error fetching data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasks();
+    fetchTasks().then(setTasks);
   }, []);
 
-  return (
-    <div className="mt-8 max-w-xl mx-auto">
-      <div className="flex justify-between items-center text-white mb-4">
-        <h2 className="text-xl">Tasks</h2>
-        <FaPlus className="cursor-pointer m-1" />
-      </div>
-      <ul className="space-y-2">
-        {tasks.map((task) => (
-          <li
-            key={task.id}
-            className="bg-white p-4 shadow flex justify-between items-center"
-          >
-            <Link to={`/${task.id}`} className="cursor-pointer">
-              {task.title} title
-            </Link>
-            <FaTrash className="text-red-500 cursor-pointer" />
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+  const handleToggle = async (task) => {
+    const updated = await toggleTask(task.id, !task.done);
+    setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
+  };
 
-export default TaskList;
+  const handleDelete = async (task) => {
+    await deleteTask(task.id);
+    setTasks(tasks.filter((t) => t.id !== task.id));
+  };
+
+  return (
+
+      <div className="max-w mx-auto mt-6">
+        <div className="flex justify-end mb-4">
+          <button
+              onClick={() => setShowForm(!showForm)}
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
+          >
+            + Add Task
+          </button>
+        </div>
+
+        {showForm && (
+            <NewTaskForm
+                // userId= {user.id}
+                userId= {1}
+                onCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
+            />
+        )}
+        {tasks.map((task) => (
+            <TaskItem
+                key={task.id}
+                task={task}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+            />
+        ))}
+      </div>
+  );
+}

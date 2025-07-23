@@ -1,29 +1,33 @@
-import LogIn from "./pages/LogInPage";
-import SignUp from "./pages/SignUpPage";
-import TasksPage from "./pages/TasksPage";
-import TaskPage, { taskLoader } from "./pages/TaskPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import {
-  Route,
-  createBrowserRouter,
-  createRoutesFromElements,
-  RouterProvider,
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import TaskPage from "./pages/TaskPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
-const App = () => {
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <Route path="/">
-        <Route index element={<TasksPage />} />
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/:id" element={<TaskPage />} loader={taskLoader} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    )
-  );
-
-  return <RouterProvider router={router} />;
-};
+function App() {
+    return (
+        <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+                path="/"
+                element={
+                    // <ProtectedRoute>
+                        <Dashboard />
+                    // </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/task/:id"
+                element={
+                    // <ProtectedRoute>
+                        <TaskPage />
+                    // </ProtectedRoute>
+                }
+            />
+        </Routes>
+    );
+}
 
 export default App;
