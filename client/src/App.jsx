@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import TaskPage from "./pages/TaskPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
     return (
@@ -25,6 +26,10 @@ function App() {
                         <TaskPage />
                     // </ProtectedRoute>
                 }
+            />
+            <Route
+                path="*"
+                element={<NotFoundPage />}
             />
         </Routes>
     );

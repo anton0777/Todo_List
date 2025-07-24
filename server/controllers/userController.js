@@ -2,19 +2,17 @@ import {User, CreateUser, UpdateUser} from "../validators/userValidator.js"
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
-export const getUsers = async (req,res)=>{
+export const getUsers = async (req,res, next)=>{
     try{
         const user = await prisma.user.findMany();
-        res.json(user);
+        res.status(200).json(user);
     }
     catch(err){
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 }
 
-export const getUser = async (req,res)=>{
+export const getUser = async (req,res, next)=>{
     try {
         const id = req.params.id;
         const user = await prisma.user.findUnique({
@@ -22,31 +20,27 @@ export const getUser = async (req,res)=>{
                 id: parseInt(id)
             }
         });
-        res.json(user);
+        res.status(200).json(user);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 }
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
     try {
         const parsed = await CreateUser.parseAsync(req.body);
         const newUser = await prisma.user.create({
                 data: parsed
             });
-        res.json(newUser);
+        res.status(201).json(newUser);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };
 
-export const updateUser = async (req,res)=>{
+export const updateUser = async (req,res, next)=>{
     try {
         const id = req.params.id;
         const parsed = await UpdateUser.parseAsync(req.body);
@@ -56,16 +50,14 @@ export const updateUser = async (req,res)=>{
             },
             data: parsed
         })
-        res.json(updateUser);
+        res.status(200).json(updateUser);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };
 
-export const deleteUser = async (req, res)=>{
+export const deleteUser = async (req, res, next)=>{
     try {
         const id = req.params.id;
         const deleteUser = await prisma.user.delete({
@@ -73,10 +65,9 @@ export const deleteUser = async (req, res)=>{
                 id: parseInt(id)
             }
         })
+        res.status(204).end();
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };

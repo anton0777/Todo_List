@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import { fetchTasks, toggleTask, deleteTask } from "../api/todo";
-import { FaPlus } from "react-icons/fa";
+import {fetchTasks, toggleTask, deleteTask} from "../api/todo";
 import NewTaskForm from "./NewTaskForm";
 import { useAuth } from "../context/AuthContext";
 
@@ -16,6 +15,8 @@ export default function TaskList() {
 
   const handleToggle = async (task) => {
     const updated = await toggleTask(task.id, !task.done);
+    // task.done = !task.done; // Toggle the done status
+    // const updated = await updateTask(task.id, task);
     setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
   };
 

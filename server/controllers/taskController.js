@@ -2,7 +2,7 @@ import {Task, CreateTask, UpdateTask} from '../validators/taskValidator.js';
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
-async function getTaskWithSubtasks(taskId) {
+async function getTaskWithSubtasks(err, taskId) {
     const task = await prisma.task.findUnique({
         where: { id: taskId },
         include: { subtasks: true }
@@ -17,7 +17,7 @@ async function getTaskWithSubtasks(taskId) {
     return task;
 }
 
-async function deleteTaskWithSubtasks(taskId) {
+async function deleteTaskWithSubtasks(err, taskId) {
     const task = await prisma.task.findUnique({
         where: { id: taskId },
         include: { subtasks: true },
@@ -30,7 +30,7 @@ async function deleteTaskWithSubtasks(taskId) {
     await prisma.task.delete({ where: { id: taskId } });
 }
 
-export const getTasks = async (req,res)=>{
+export const getTasks = async (req,res, next)=>{
     try {
         const rootTasks = await prisma.task.findMany({
             where: { parentId: null }
@@ -39,45 +39,38 @@ export const getTasks = async (req,res)=>{
         const tasksWithSubtasks = await Promise.all(
             rootTasks.map(task => getTaskWithSubtasks(task.id))
         );
-        res.json(tasksWithSubtasks);
+        res.status(200).json(tasksWithSubtasks);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };
 
-export const getTask = async (req,res)=>{
+export const getTask = async (req,res, next)=>{
     try {
         const id = req.params.id;
         const task = await getTaskWithSubtasks(parseInt(id));
-
-        res.json(task);
+        res.status(200).json(task);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };
 
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
     try {
         const parsed = await CreateTask.parseAsync(req.body);
         const newTask = await prisma.task.create({
-            data: parsed
+            data: parsed,
         });
-        res.json(newTask);
+
+        return res.status(201).json(newTask);
+    } catch (err) {
+        next(err);
     }
-    catch (err) {
-        res.status(500);
-        console.log(err);
-    }
-    res.end();
 };
 
-export const updateTask = async (req,res)=>{
+export const updateTask = async (req,res, next)=>{
     try {
         const id = req.params.id;
         const parsed = await UpdateTask.parseAsync(req.body);
@@ -87,23 +80,19 @@ export const updateTask = async (req,res)=>{
             },
             data: parsed,
         })
-        res.json(updateTask);
+        res.status(200).json(updateTask);
     }
     catch (err) {
-        res.status(500);
-        console.log(err);
+        next(err);
     }
-    res.end();
 };
 
-export const deleteTask = async (req, res) => {
+export const deleteTask = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
         await deleteTaskWithSubtasks(id);
-        res.status(204);
+        res.status(204).end();
     } catch (err) {
-        console.log(err);
-        res.status(500);
+        next(err);
     }
-    res.end();
 };
