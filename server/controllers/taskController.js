@@ -2,11 +2,15 @@ import {Task, CreateTask, UpdateTask} from '../validators/taskValidator.js';
 import { PrismaClient } from '../generated/prisma/index.js';
 const prisma = new PrismaClient();
 
-async function getTaskWithSubtasks(err, taskId) {
+async function getTaskWithSubtasks(taskId) {
     const task = await prisma.task.findUnique({
         where: { id: taskId },
         include: { subtasks: true }
     });
+
+    if (!task) {
+        throw new Error(`Task with id ${taskId} not found`);
+    }
 
     task.subtasks = await Promise.all(
         task.subtasks.map(async (subtask) => {
@@ -17,11 +21,15 @@ async function getTaskWithSubtasks(err, taskId) {
     return task;
 }
 
-async function deleteTaskWithSubtasks(err, taskId) {
+async function deleteTaskWithSubtasks(taskId) {
     const task = await prisma.task.findUnique({
         where: { id: taskId },
         include: { subtasks: true },
     });
+
+    if (!task) {
+        throw new Error(`Task with id ${taskId} not found`);
+    }
 
     await Promise.all(
         task.subtasks.map((subtask) => deleteTaskWithSubtasks(subtask.id))

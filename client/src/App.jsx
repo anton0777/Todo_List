@@ -5,33 +5,37 @@ import Dashboard from "./pages/Dashboard";
 import TaskPage from "./pages/TaskPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
+import {ToastContainer} from "react-toastify";
 
 function App() {
     return (
-        <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-                path="/"
-                element={
-                    // <ProtectedRoute>
+        <>
+            <ToastContainer />
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                    path="/"
+                    element={
+                        // <ProtectedRoute>
                         <Dashboard />
-                    // </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/task/:id"
-                element={
-                    // <ProtectedRoute>
+                        // </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/task/:id"
+                    element={
+                        // <ProtectedRoute>
                         <TaskPage />
-                    // </ProtectedRoute>
-                }
-            />
-            <Route
-                path="*"
-                element={<NotFoundPage />}
-            />
-        </Routes>
+                        // </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="*"
+                    element={<NotFoundPage />}
+                />
+            </Routes>
+        </>
     );
 }
 

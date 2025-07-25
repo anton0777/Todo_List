@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import {fetchTasks, toggleTask, deleteTask} from "../api/todo";
+import {fetchTasks, updateTask, deleteTask} from "../api/todo";
 import NewTaskForm from "./NewTaskForm";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 export default function TaskList() {
   const [tasks, setTasks] = useState([]);
@@ -10,23 +11,45 @@ export default function TaskList() {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchTasks().then(setTasks);
+    try {
+      fetchTasks().then(setTasks);
+    } catch (err) {
+      console.error("Error:", err.message, err.meta);
+      toast.error(err.message, {
+        position: "top-center"
+      });
+    }
   }, []);
 
   const handleToggle = async (task) => {
-    const updated = await toggleTask(task.id, !task.done);
-    // task.done = !task.done; // Toggle the done status
-    // const updated = await updateTask(task.id, task);
-    setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
+    try {
+      task.done = !task.done;
+      const updated = await updateTask(task.id, task);
+      setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
+    } catch (err) {
+      console.error("Error:", err.message, err.meta);
+      toast.error(err.message, {
+        position: "top-center"
+      });
+    }
   };
 
   const handleDelete = async (task) => {
-    await deleteTask(task.id);
-    setTasks(tasks.filter((t) => t.id !== task.id));
+    try {
+      await deleteTask(task.id);
+      setTasks(tasks.filter((t) => t.id !== task.id));
+      toast.success("Task deleted", {
+        position: "top-center"
+      });
+    } catch (err) {
+      console.error("Error:", err.message, err.meta);
+      toast.error(err.message, {
+        position: "top-center"
+      });
+    }
   };
 
   return (
-
       <div className="max-w mx-auto mt-6">
         <div className="flex justify-end mb-4">
           <button
@@ -36,11 +59,11 @@ export default function TaskList() {
             + Add Task
           </button>
         </div>
-
         {showForm && (
             <NewTaskForm
                 // userId= {user.id}
-                userId= {1}
+                // userId= {1}
+                userId={8}
                 onCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
             />
         )}

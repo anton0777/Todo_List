@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import {deleteTask, getTaskById, toggleTask, updateTask} from "../api/todo";
+import {deleteTask, getTaskById, updateTask} from "../api/todo";
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import NewTaskForm from "./NewTaskForm";
+import { toast } from "react-toastify";
 
 
 export default function TaskDetails({ taskId }) {
@@ -16,35 +17,66 @@ export default function TaskDetails({ taskId }) {
                 const data = await getTaskById(taskId);
                 setTask(data);
             } catch (err) {
-                console.error("Failed to load task:", err);
+                console.error("Error:", err.message, err.meta);
+                toast.error(err.message, {
+                    position: "top-center"
+                });
             }
         }
         load();
     }, [taskId]);
 
     const handleToggle = async (sub) => {
-        const updated = await toggleTask(sub.id, !sub.done);
-        setTask({
-            ...task,
-            subtasks: task.subtasks.map((s) => (s.id === sub.id ? updated : s)),
-        });
+        try{
+            sub.done = !sub.done;
+            const updated = await updateTask(sub.id, sub);
+            setTask({
+                ...task,
+                subtasks: task.subtasks.map((s) => (s.id === sub.id ? updated : s)),
+            });
+        } catch (err) {
+            console.error("Error:", err.message, err.meta);
+            toast.error(err.message, {
+                position: "top-center"
+            });
+        }
     };
 
     const handleDelete = async (sub) => {
-        await deleteTask(sub.id);
-        setTask({
-            ...task,
-            subtasks: task.subtasks.filter((t) => t.id !== sub.id),
-        });
+        try {
+            await deleteTask(sub.id);
+            setTask({
+                ...task,
+                subtasks: task.subtasks.filter((t) => t.id !== sub.id),
+            });
+            toast.success("Task deleted", {
+                position: "top-center"
+            })
+        } catch (err) {
+            console.error("Error:", err.message, err.meta);
+            toast.error(err.message, {
+                position: "top-center"
+            });
+        }
     };
 
     const handleFieldChange = async (field, value) => {
-        const updated = { ...task, [field]: value };
-        setTask(updated);
         try {
-            await updateTask(task.id, { [field]: value });
+            const updated = { ...task, [field]: value };
+            setTask(updated);
+            try {
+                await updateTask(task.id, { [field]: value });
+            } catch (err) {
+                console.error("Error:", err.message, err.meta);
+                toast.error(err.message, {
+                    position: "top-center"
+                });
+            }
         } catch (err) {
-            console.error("Auto-save failed:", err);
+            console.error("Error:", err.message, err.meta);
+            toast.error(err.message, {
+                position: "top-center"
+            });
         }
     };
 

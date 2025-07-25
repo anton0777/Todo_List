@@ -20,6 +20,9 @@ export const getUser = async (req,res, next)=>{
                 id: parseInt(id)
             }
         });
+        if (!user) {
+            throw new Error(`User with id ${id} not found`);
+        }
         res.status(200).json(user);
     }
     catch (err) {

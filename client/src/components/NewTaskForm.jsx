@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createTask } from "../api/todo";
+import { toast } from "react-toastify";
 
 export default function NewTaskForm({ userId, parentId = undefined, onCreated }) {
     const [title, setTitle] = useState("");
@@ -14,9 +15,14 @@ export default function NewTaskForm({ userId, parentId = undefined, onCreated })
             onCreated(newTask);
             setTitle("");
             setDescription("");
+            toast.success("Task created", {
+                position: "top-center"
+            });
         } catch (err) {
-            console.log(err);
-            alert("Failed to create task");
+            console.error("Error:", err.message, err.meta);
+            toast.error(err.message, {
+                position: "top-center"
+            });
         } finally {
             setLoading(false);
         }
