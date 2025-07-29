@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { updateUser } from "../api/auth";
+import { updateUser } from "../api/user";
+import { toast } from "react-toastify";
 
 export default function SettingsModal({ onClose }) {
-    const { logout, user } = useAuth();
-    const [form, setForm] = useState({ username: "", password: "" });
+    const { logout, user, setUser } = useAuth();
+    const [form, setForm] = useState({ name: '', password: '' });
     const [saving, setSaving] = useState(false);
 
     const handleChange = (e) => {
@@ -13,12 +14,20 @@ export default function SettingsModal({ onClose }) {
 
     const handleSave = async () => {
         try {
+            if (form.name === '') form.name = undefined;
+            if (form.password === '') form.password = undefined;
             setSaving(true);
-            await updateUser(user.id, form);
-            alert("Changes saved");
+            const updated = await updateUser(user.id, form);
+            setUser({ ...user, ...updated });
             onClose();
+            toast.success("User was updated", {
+                position: "top-center"
+            })
         } catch (err) {
-            alert("Failed to save changes");
+            toast.error(err.message, {
+                position: "top-center"
+            })
+            console.error("Error:", err.message, err?.meta);
         } finally {
             setSaving(false);
         }
@@ -29,10 +38,10 @@ export default function SettingsModal({ onClose }) {
             <div className="bg-white max-w-[360px] w-full p-[45px] text-center shadow-[0_0_20px_rgba(0,0,0,0.2),0_5px_5px_rgba(0,0,0,0.24)] rounded">
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">User Settings</h2>
                 <input
-                    name="username"
+                    name="name"
                     type="text"
-                    placeholder="New username"
-                    value={form.username}
+                    placeholder="New name"
+                    value={form.name}
                     onChange={handleChange}
                     className="bg-gray-100 w-full mb-4 p-4 text-sm outline-none"
                 />

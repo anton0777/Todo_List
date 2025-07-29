@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {deleteTask, getTaskById, updateTask} from "../api/todo";
+import {deleteTask, getTaskByUserId, updateTask} from "../api/todo";
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import NewTaskForm from "./NewTaskForm";
@@ -14,7 +14,7 @@ export default function TaskDetails({ taskId }) {
     useEffect(() => {
         async function load() {
             try {
-                const data = await getTaskById(taskId);
+                const data = await getTaskByUserId(taskId);
                 setTask(data);
             } catch (err) {
                 console.error("Error:", err.message, err.meta);

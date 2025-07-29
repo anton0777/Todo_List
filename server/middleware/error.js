@@ -23,7 +23,7 @@ const errorHandler = (err, req, res, next) => {
     }
 
     return res.status(500).json({
-        message: "Something went wrong. Please try again later",
+        message: err.message.replace(/\n/g, "") || "Unknown error",
         meta: {
             error: err.message.replace(/\n/g, "") || "Unknown error",
             stack: err.stack.replace(/\n/g, ""),

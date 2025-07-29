@@ -1,9 +1,9 @@
 import { fetchWithErrorHandling } from "./fetchWithErrorHandling";
 
-const API = "/api/user";
+const API = "/api/auth";
 
 export const loginUser = (credentials) =>
-    fetchWithErrorHandling(API, {
+    fetchWithErrorHandling(`${API}/login`, {
         method: "POST",
         body: JSON.stringify({
             email: credentials.email,
@@ -12,24 +12,11 @@ export const loginUser = (credentials) =>
     });
 
 export const registerUser = (info) =>
-    fetchWithErrorHandling(API, {
+    fetchWithErrorHandling(`${API}/register`, {
         method: "POST",
         body: JSON.stringify({
             email: info.email,
             password: info.password,
             name: info.name || undefined,
         }),
-    });
-
-export const getUser = (token) =>
-    fetchWithErrorHandling(API, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
-export const updateUser = (id, data) =>
-    fetchWithErrorHandling(`${API}/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
     });

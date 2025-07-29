@@ -61,9 +61,8 @@ export default function TaskList() {
         </div>
         {showForm && (
             <NewTaskForm
-                // userId= {user.id}
-                // userId= {1}
-                userId={8}
+                userId={user.id}
+                parentId={user.parentId}
                 onCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
             />
         )}

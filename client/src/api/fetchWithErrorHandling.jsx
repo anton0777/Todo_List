@@ -30,6 +30,7 @@ export async function fetchWithErrorHandling(url, options = {}) {
         const err = new Error(message);
         err.meta = meta;
         err.status = res.status;
+        console.error(err.meta);
         throw err;
     }
 

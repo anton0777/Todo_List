@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUser, loginUser, registerUser } from "../api/auth";
+import { loginUser, registerUser } from "../api/auth";
+import { getUser } from "../api/user";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -19,30 +21,54 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        const data = await loginUser(credentials);
-        localStorage.setItem("token", data.token);
-        const me = await getUser(data.token);
-        setUser(me);
-        navigate("/");
+        try {
+            const data = await loginUser(credentials);
+            localStorage.setItem("token", data.token);
+            setUser(data);
+            navigate("/");
+            toast.success("User logged in successfully", {
+                position: "top-center",
+            });
+        } catch (err) {
+            console.error(err.meta ? err.meta : err);
+            toast.error(err.message, {
+                position: "top-center",
+            });
+        }
     };
 
     const register = async (info) => {
-        const data = await registerUser(info);
-        localStorage.setItem("token", data.token);
-        const me = await getUser(data.token);
-        setUser(me);
-        navigate("/");
+        try {
+            const data = await registerUser(info);
+            localStorage.setItem("token", data.token);
+            navigate("/login");
+            toast.success("User was successfully created", {
+                position: "top-center",
+            });
+        } catch (err) {
+            console.error(err.meta ? err.meta : err);
+            toast.error(err.message, {
+                position: "top-center",
+            });
+        }
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
-        setUser(null);
-        navigate("/login");
+        try {
+            localStorage.removeItem("token");
+            setUser(null);
+            navigate("/login");
+        } catch (err) {
+            console.error(err.meta ? err.meta : err);
+            toast.error(err.message, {
+                position: "top-center",
+            });
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ user, setUser, login, register, logout }}>
+        {!loading && children}
         </AuthContext.Provider>
     );
 };
