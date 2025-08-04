@@ -1,21 +1,24 @@
 import express from "express";
-import {
-    getTasks,
-    getTask,
-    createTask,
-    updateTask,
-    deleteTask,
-} from '../controllers/taskController.js';
+import { TaskController } from '../controllers/taskController.js';
+import { TaskService } from '../services/taskService.js';
+import { TaskRepository } from '../repositories/taskRepository.js';
+import { PrismaClient } from '../generated/prisma/index.js';
+
+const prisma = new PrismaClient();
 const router = express.Router();
 
-router.get('/', getTasks)
+const taskRepository = new TaskRepository(prisma);
+const taskService = new TaskService(taskRepository);
+const taskController = new TaskController(taskService);
 
-router.get('/:id', getTask)
+router.get('/', taskController.getTasks)
 
-router.post('/', createTask)
+router.get('/:id', taskController.getTask)
 
-router.put('/:id', updateTask)
+router.post('/', taskController.createTask)
 
-router.delete('/:id', deleteTask)
+router.put('/:id', taskController.updateTask)
+
+router.delete('/:id', taskController.deleteTask)
 
 export default router;

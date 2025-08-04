@@ -2,11 +2,12 @@ import { fetchWithErrorHandling } from "./fetchWithErrorHandling";
 
 const API = "/api/todo";
 
-export const fetchTasks = () => fetchWithErrorHandling(API, {
-    method: "GET",
-    headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-    }
+export const fetchTasks = () =>
+    fetchWithErrorHandling(API, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        }
 });
 
 export const getTaskByUserId = (id) =>

@@ -69,7 +69,7 @@ export default function SettingsModal({ onClose }) {
                     </button>
                     <button
                         onClick={onClose}
-                        className="border text-gray-700 px-4 py-2 text-sm uppercase rounded w-[100px]"
+                        className="border hover:bg-gray-200  text-gray-700 px-4 py-2 text-sm uppercase rounded w-[100px]"
                     >
                         Close
                     </button>

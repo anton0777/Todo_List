@@ -6,36 +6,40 @@ import TaskPage from "./pages/TaskPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import {ToastContainer} from "react-toastify";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
     return (
-        <>
-            <ToastContainer />
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/task/:id"
-                    element={
-                        <ProtectedRoute>
-                            <TaskPage />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="*"
-                    element={<NotFoundPage />}
-                />
-            </Routes>
-        </>
+        <BrowserRouter>
+            <AuthProvider>
+                <ToastContainer />
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/task/:id"
+                        element={
+                            <ProtectedRoute>
+                                <TaskPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="*"
+                        element={<NotFoundPage />}
+                    />
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
     );
 }
 

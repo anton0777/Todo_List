@@ -1,12 +1,18 @@
 import express from "express";
-import {
-    loginUser,
-    registerUser,
-} from '../controllers/authController.js';
+import { AuthController } from "../controllers/authController.js";
+import { AuthService } from "../services/authService.js";
+import { AuthRepository } from "../repositories/authRepository.js";
+import { PrismaClient } from "../generated/prisma/index.js";
+
+const prisma = new PrismaClient();
 const router = express.Router();
 
-router.post('/login', loginUser)
+const authRepository = new AuthRepository(prisma);
+const authService = new AuthService(authRepository);
+const authController = new AuthController(authService);
 
-router.post('/register', registerUser)
+router.post('/login', authController.loginUser)
+
+router.post('/register', authController.registerUser)
 
 export default router;

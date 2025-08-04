@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import {deleteTask, getTaskByUserId, updateTask} from "../api/todo";
 import { useNavigate } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaArrowLeft, FaSave } from "react-icons/fa";
 import NewTaskForm from "./NewTaskForm";
 import { toast } from "react-toastify";
 
-
 export default function TaskDetails({ taskId }) {
     const [task, setTask] = useState(null);
+    const [newTask, setNewTask] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
@@ -16,6 +16,7 @@ export default function TaskDetails({ taskId }) {
             try {
                 const data = await getTaskByUserId(taskId);
                 setTask(data);
+                setNewTask(data);
             } catch (err) {
                 console.error("Error:", err.message, err.meta);
                 toast.error(err.message, {
@@ -64,14 +65,6 @@ export default function TaskDetails({ taskId }) {
         try {
             const updated = { ...task, [field]: value };
             setTask(updated);
-            try {
-                await updateTask(task.id, { [field]: value });
-            } catch (err) {
-                console.error("Error:", err.message, err.meta);
-                toast.error(err.message, {
-                    position: "top-center"
-                });
-            }
         } catch (err) {
             console.error("Error:", err.message, err.meta);
             toast.error(err.message, {
@@ -80,19 +73,64 @@ export default function TaskDetails({ taskId }) {
         }
     };
 
+    const handleSave = async () => {
+        try {
+            if (task === newTask){
+                return;
+            }
+            if (!task.title || task.title.trim() === "") {
+                throw new Error("Title is required");
+            }
+            setNewTask(task);
+            await updateTask(task.id, task);
+            toast.success("Task saved", {
+                position: "top-center"
+            });
+        } catch (err) {
+            console.error("Error:", err.message, err.meta);
+            toast.error(err.message, {
+                position: "top-center"
+            });
+        }
+    }
+
+    const hasChanges = () => {
+        return task !== newTask;
+    };
+
+
     if (!task) return <div className="text-center mt-10 text-white">Loading...</div>;
 
     return (
-        <div className="bg-white max-w-[360px] mx-auto mb-[100px] p-[45px] text-center shadow-[0_0_20px_rgba(0,0,0,0.2),0_5px_5px_rgba(0,0,0,0.24)]">
+        <div className="bg-white max-w-full mx-auto mb-[100px] p-[45px] text-left shadow-[0_0_20px_rgba(0,0,0,0.2),0_5px_5px_rgba(0,0,0,0.24)]">
+            <div className="flex items-center gap-4 mb-4 text-2xl">
+                <FaArrowLeft
+                    className="hover:text-blue-700 cursor-pointer"
+                    onClick={() => navigate(-1)}
+                />
+                <FaSave
+                    onClick={() => handleSave()}
+                    className={`transition ${
+                        hasChanges()
+                            ? "text-black hover:text-blue-700 cursor-pointer"
+                            : "text-gray-400 cursor-not-allowed"
+                    }`}
+                />
+            </div>
+            <hr/>
             <input
                 value={task.title}
                 onChange={(e) => handleFieldChange("title", e.target.value)}
                 placeholder="Title"
-                className="text-2xl font-bold mb-4 text-gray-800 w-full text-center outline-none border-none bg-transparent"
+                className="text-2xl font-bold mb-4 text-gray-800 w-full outline-none border-none bg-transparent hover:shadow-md rounded"
             />
             <hr/>
             <p className="text-sm text-gray-500 mb-4">
                 Created at: {new Date(task.createdAt).toLocaleDateString()} {new Date(task.createdAt).toLocaleTimeString()}
+            </p>
+            <hr/>
+            <p className="text-sm text-gray-500 mb-4">
+                Status: <span className={task.done ? "text-green-500" : "text-red-500"}>{task.done ? "Done" : "Not done"}</span>
             </p>
             <hr/>
             <textarea
@@ -100,12 +138,8 @@ export default function TaskDetails({ taskId }) {
                 onChange={(e) => handleFieldChange("description", e.target.value)}
                 placeholder="Description"
                 rows={3}
-                className="w-full text-sm text-gray-600 mb-4 outline-none border-none bg-transparent resize-none text-center"
+                className="w-full text-sm text-gray-600 mb-4 outline-none border-none bg-transparent p-2 hover:shadow-md rounded"
             />
-            <hr/>
-            <p className="text-sm text-gray-500 mb-4">
-                Status: <span className={task.done ? "text-green-500" : "text-red-500"}>{task.done ? "Done" : "Not done"}</span>
-            </p>
             <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold text-gray-700">Subtasks</h3>
                 <button
