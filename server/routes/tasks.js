@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import { TaskController } from '../controllers/taskController.js';
 import { TaskService } from '../services/taskService.js';
 import { TaskRepository } from '../repositories/taskRepository.js';
@@ -11,14 +11,14 @@ const taskRepository = new TaskRepository(prisma);
 const taskService = new TaskService(taskRepository);
 const taskController = new TaskController(taskService);
 
-router.get('/', taskController.getTasks)
+router.get('/', taskController.getTasks);
 
-router.get('/:id', taskController.getTask)
+router.get('/:id', taskController.getTask);
 
-router.post('/', taskController.createTask)
+router.post('/', taskController.createTask);
 
-router.put('/:id', taskController.updateTask)
+router.put('/:id', taskController.updateTask);
 
-router.delete('/:id', taskController.deleteTask)
+router.delete('/:id', taskController.deleteTask);
 
 export default router;
