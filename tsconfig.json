@@ -1,0 +1,42 @@
+{
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "compilerOptions": {
+    //  "noErrorTruncation": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowJs": true,
+    //  "checkJs": true
+    "outDir": ".build",
+    "rootDir": ".",
+    "useUnknownInCatchVariables": true,
+    "resolveJsonModule": true,
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types", "./@types"],
+    "sourceMap": true
+  },
+  "include": ["./**/*.ts", "./**/*.js"],
+  "exclude": [
+    //
+    "node_modules",
+    ".build",
+    "coverage",
+    "./_*.js",
+    "./_*.ts"
+  ],
+  "ts-node": {
+    // allows ts-node use src/environment.d.ts
+    "files": true,
+    "esm": true,
+    // use SWC instead of tsc, faster lunch and compilation
+    "swc": true,
+    // ts-node skip typechecking
+    "transpileOnly": true,
+    "compilerOptions": {
+      // compilerOptions specified here will override those declared below,
+      // but *only* in ts-node.  Useful if you want ts-node and tsc to use
+      // different options with a single tsconfig.json.
+      // "experimentalDecorators": true,
+    }
+  }
+}
