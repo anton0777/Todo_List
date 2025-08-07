@@ -6,11 +6,11 @@ A simple todo-list application.
 
 ### Features:
 
-* Node provides the backend environment for this application
-* Express middleware is used to handle requests, routes
+* Node.js provides the backend environment
+* Express.js handles routing and middleware logic
 * Prisma ORM connects to a MySQL database and provides schema modeling
 * MySQL is used as the database
-* Vite + React + Tailwind CSS are used for the frontend
+* Vite + React + Material UI are used for the frontend
 
 ---
 

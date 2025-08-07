@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { createTask } from "../api/todo";
 import { toast } from "react-toastify";
+import {
+    Button,
+    CircularProgress,
+    TextField,
+    Paper,
+} from "@mui/material";
 
 export default function NewTaskForm({ userId, parentId = undefined, onCreated }) {
     const [title, setTitle] = useState("");
@@ -15,43 +21,56 @@ export default function NewTaskForm({ userId, parentId = undefined, onCreated })
             onCreated(newTask);
             setTitle("");
             setDescription("");
-            toast.success("Task created", {
-                position: "top-center"
-            });
+            toast.success("Task created", { position: "top-center" });
         } catch (err) {
             console.error("Error:", err.message, err.meta);
-            toast.error(err.message, {
-                position: "top-center"
-            });
+            toast.error(err.message, { position: "top-center" });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-4 p-4 bg-gray-50 rounded shadow-sm">
-            <input
-                type="text"
+        <Paper
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                p: 2,
+                mb: 2,
+            }}
+        >
+            <TextField
+                label="Task title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Task title"
+                fullWidth
+                size="small"
                 required
-                className="w-full p-2 mb-2 border rounded text-sm"
+                autoComplete="off"
+                sx={{ mb: 2 }}
             />
-            <textarea
+            <TextField
+                label="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description"
-                className="w-full p-2 mb-2 border rounded text-sm"
+                multiline
                 rows={2}
+                fullWidth
+                size="small"
+                sx={{ mb: 2 }}
             />
-            <button
+            <Button
                 type="submit"
-                disabled={loading}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 text-sm rounded w-full"
+                fullWidth
+                variant="contained"
+                disabled={loading || !title.trim()}
+                sx={{
+                    backgroundColor: "#22c55e",
+                    "&:hover": { backgroundColor: "#16a34a" },
+                }}
             >
-                {loading ? "Adding..." : "Add Task"}
-            </button>
-        </form>
+                {loading ? <CircularProgress size={20} color="inherit" /> : "Save"}
+            </Button>
+        </Paper>
     );
 }

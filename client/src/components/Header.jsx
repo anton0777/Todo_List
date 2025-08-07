@@ -1,25 +1,58 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import SettingsModal from "./SettingsModal";
-import { FaGear} from "react-icons/fa6";
+import { FaGear } from "react-icons/fa6";
+import {
+    AppBar,
+    Box,
+    Toolbar,
+    Typography,
+    IconButton,
+} from "@mui/material";
 
 export default function Header() {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
 
     return (
-        <header className="bg-white shadow p-4 flex justify-between items-center">
-            <h1 className="text-xl font-bold">Todo List</h1>
-            <div className="flex items-center gap-2">
-                <span className="text-gray-700">{user?.name}</span>
-                <button
-                    onClick={() => setOpen(true)}
-                    className="text-gray-600 hover:text-gray-800"
-                >
-                    <FaGear />
-                </button>
-            </div>
+        <>
+            <AppBar
+                position="static"
+                color="default"
+                elevation={1}
+            >
+                <Toolbar className="justify-between">
+                    <Typography variant="h6" fontWeight="bold">
+                        Todo List
+                    </Typography>
+
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                    >
+                        <Typography variant="body1" color="textSecondary">
+                            {user?.name}
+                        </Typography>
+                        <IconButton
+                            size="small"
+                            onClick={() => setOpen(true)}
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                backgroundColor: "#f3f4f6",
+                                "&:hover": {
+                                    backgroundColor: "#e5e7eb",
+                                },
+                            }}
+                        >
+                            <FaGear />
+                        </IconButton>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+
             {open && <SettingsModal onClose={() => setOpen(false)} />}
-        </header>
+        </>
     );
 }

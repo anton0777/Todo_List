@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import {CreateUser, UpdateUser} from "../validators/userValidator.js";
 
 export class UserService {
-  constructor(userRepository) {
-    this.userRepository = userRepository;
-  }
+    constructor(userRepository) {
+        this.userRepository = userRepository;
+    }
 
   getUsers = async () => {
     try {
@@ -34,10 +35,11 @@ export class UserService {
   updateUser = async (headers, userData) => {
     try {
       const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-      if (userData.password) {
-        userData.password = await bcrypt.hash(userData.password, 6);
+      const parsedData = await UpdateUser.parseAsync(userData);
+      if (parsedData.password) {
+          parsedData.password = await bcrypt.hash(parsedData.password, 6);
       }
-      return await this.userRepository.updateUser(userId, userData);
+      return await this.userRepository.updateUser(userId, parsedData);
     } catch (error) {
       throw error;
     }

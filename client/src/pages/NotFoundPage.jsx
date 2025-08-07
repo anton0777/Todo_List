@@ -1,19 +1,46 @@
 import { Link } from "react-router-dom";
+import { Box, Button, Typography } from "@mui/material";
 
 const NotFoundPage = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#8dc26f] via-[#76b852] to-[#8dc26f] font-['Roboto']">
-      <section className="text-center flex flex-col justify-center items-center h-96">
-        <h1 className="text-6xl font-bold mb-4">404 Not Found</h1>
-        <p className="text-xl mb-5">This page does not exist</p>
-        <Link
-          to="/"
-          className="text-white bg-green-700 hover:bg-green-900 px-3 py-2 mt-4"
+      <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(to right, #8dc26f, #76b852, #8dc26f)",
+          }}
+      >
+        <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
         >
-          Go Back
-        </Link>
-      </section>
-    </div>
+          <Typography variant="h2" sx={{ fontWeight: "bold", mb: 2 }}>
+            404 Not Found
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 3 }}>
+            This page does not exist
+          </Typography>
+          <Button
+              component={Link}
+              to="/"
+              variant="contained"
+              sx={{
+                backgroundColor: "#2f855a",
+                "&:hover": { backgroundColor: "#22543d" },
+                px: 3,
+                py: 1.5,
+              }}
+          >
+            Go Back
+          </Button>
+        </Box>
+      </Box>
   );
 };
+
 export default NotFoundPage;

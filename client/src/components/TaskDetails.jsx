@@ -1,13 +1,25 @@
 import { useEffect, useState } from "react";
-import {deleteTask, getTaskByUserId, updateTask} from "../api/todo";
-import { useNavigate } from "react-router-dom";
-import { FaTrash, FaArrowLeft, FaSave } from "react-icons/fa";
+import {
+    Box,
+    Typography,
+    IconButton,
+    TextField,
+    Collapse,
+    Paper,
+    Divider,
+    TextareaAutosize,
+} from "@mui/material";
+import { FaArrowLeft, FaSave } from "react-icons/fa";
+import { deleteTask, getTaskByUserId, updateTask } from "../api/todo";
 import NewTaskForm from "./NewTaskForm";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import AddIcon from "@mui/icons-material/Add";
+import TaskItem from "./TaskItem.jsx";
 
 export default function TaskDetails({ taskId }) {
     const [task, setTask] = useState(null);
-    const [newTask, setNewTask] = useState(null);
+    const [unsavedTask, setUnsavedTask] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
@@ -16,185 +28,145 @@ export default function TaskDetails({ taskId }) {
             try {
                 const data = await getTaskByUserId(taskId);
                 setTask(data);
-                setNewTask(data);
+                setUnsavedTask(data);
             } catch (err) {
-                console.error("Error:", err.message, err.meta);
-                toast.error(err.message, {
-                    position: "top-center"
-                });
+                toast.error(err.message, { position: "top-center" });
             }
         }
         load();
     }, [taskId]);
 
     const handleToggle = async (sub) => {
-        try{
-            sub.done = !sub.done;
-            const updated = await updateTask(sub.id, sub);
-            setTask({
-                ...task,
-                subtasks: task.subtasks.map((s) => (s.id === sub.id ? updated : s)),
-            });
-        } catch (err) {
-            console.error("Error:", err.message, err.meta);
-            toast.error(err.message, {
-                position: "top-center"
-            });
-        }
+        sub.done = !sub.done;
+        const updated = await updateTask(sub.id, sub);
+        setUnsavedTask((prev) => ({
+            ...prev,
+            subtasks: prev.subtasks.map((s) => (s.id === sub.id ? updated : s)),
+        }));
     };
 
     const handleDelete = async (sub) => {
-        try {
-            await deleteTask(sub.id);
-            setTask({
-                ...task,
-                subtasks: task.subtasks.filter((t) => t.id !== sub.id),
-            });
-            toast.success("Task deleted", {
-                position: "top-center"
-            })
-        } catch (err) {
-            console.error("Error:", err.message, err.meta);
-            toast.error(err.message, {
-                position: "top-center"
-            });
-        }
+        await deleteTask(sub.id);
+        setUnsavedTask((prev) => ({
+            ...prev,
+            subtasks: prev.subtasks.filter((s) => s.id !== sub.id),
+        }));
+        toast.success("Task deleted", { position: "top-center" });
     };
 
-    const handleFieldChange = async (field, value) => {
-        try {
-            const updated = { ...task, [field]: value };
-            setTask(updated);
-        } catch (err) {
-            console.error("Error:", err.message, err.meta);
-            toast.error(err.message, {
-                position: "top-center"
-            });
-        }
+    const handleFieldChange = (field, value) => {
+        setUnsavedTask((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleSave = async () => {
-        try {
-            if (task === newTask){
-                return;
-            }
-            if (!task.title || task.title.trim() === "") {
-                throw new Error("Title is required");
-            }
-            setNewTask(task);
-            await updateTask(task.id, task);
-            toast.success("Task saved", {
-                position: "top-center"
-            });
-        } catch (err) {
-            console.error("Error:", err.message, err.meta);
-            toast.error(err.message, {
-                position: "top-center"
-            });
-        }
-    }
-
-    const hasChanges = () => {
-        return task !== newTask;
+        setTask(unsavedTask);
+        await updateTask(unsavedTask.id, unsavedTask);
+        toast.success("Task saved", { position: "top-center" });
     };
 
+    const hasChanges = () => JSON.stringify(unsavedTask.title) !== JSON.stringify(task.title) || JSON.stringify(unsavedTask.description) !== JSON.stringify(task.description);
 
-    if (!task) return <div className="text-center mt-10 text-white">Loading...</div>;
+    if (!unsavedTask) return <Typography align="center">Loading...</Typography>;
 
     return (
-        <div className="bg-white max-w-full mx-auto mb-[100px] p-[45px] text-left shadow-[0_0_20px_rgba(0,0,0,0.2),0_5px_5px_rgba(0,0,0,0.24)]">
-            <div className="flex items-center gap-4 mb-4 text-2xl">
-                <FaArrowLeft
-                    className="hover:text-blue-700 cursor-pointer"
-                    onClick={() => navigate(-1)}
+        <Box sx={{ minHeight: "100vh", }}>
+            <Paper sx={{ p: 3, maxWidth: "700px", mx: "auto"}}>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                    <IconButton
+                        sx={{ color: "#000000" }}
+                        onClick={() => navigate(-1)}
+                    >
+                        <FaArrowLeft />
+                    </IconButton>
+                    <IconButton
+                        sx={{ color: "#000000" }}
+                        onClick={handleSave}
+                        disabled={!hasChanges()}
+                    >
+                        <FaSave />
+                    </IconButton>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                <TextField
+                    label="Title"
+                    value={unsavedTask.title}
+                    onChange={(e) => handleFieldChange("title", e.target.value)}
+                    fullWidth
+                    variant="standard"
+                    sx={{ mb: 2 }}
                 />
-                <FaSave
-                    onClick={() => handleSave()}
-                    className={`transition ${
-                        hasChanges()
-                            ? "text-black hover:text-blue-700 cursor-pointer"
-                            : "text-gray-400 cursor-not-allowed"
-                    }`}
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                    Created at:{" "}
+                    {new Date(unsavedTask.createdAt).toLocaleString()}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                    Status:{" "}
+                    <span style={{ color: unsavedTask.done ? "green" : "red" }}>
+                    {unsavedTask.done ? "Done" : "Not done"}
+                </span>
+                </Typography>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" fontWeight="bold">Subtasks</Typography>
+                    <IconButton
+                        variant="contained"
+                        onClick={() => setShowForm(!showForm)}
+                        size="small"
+                        sx={{
+                            mb: 1,
+                            borderRadius: 1,
+                            color: "#fff",
+                            backgroundColor: "#22c55e",
+                            "&:hover": {
+                                backgroundColor: "#16a34a",
+                            },
+                        }}
+                    >
+                        <AddIcon/>
+                    </IconButton>
+                </Box>
+                <Collapse in={showForm} timeout="auto">
+                    <NewTaskForm
+                        userId={unsavedTask.userId}
+                        parentId={unsavedTask.id}
+                        onCreated={(subtask) =>
+                            setUnsavedTask((prev) => ({
+                                ...prev,
+                                subtasks: [...prev.subtasks, subtask],
+                            }))
+                        }
+                    />
+                </Collapse>
+                <Box mb={3}>
+                    {unsavedTask.subtasks?.length > 0 ? (
+                        unsavedTask.subtasks.map((sub) => (
+                            <TaskItem
+                                key={sub.id}
+                                task={sub}
+                                onToggle={handleToggle}
+                                onDelete={handleDelete}
+                            />
+                        ))
+                    ) : (
+                        <Typography color="textSecondary">No subtasks</Typography>
+                    )}
+                </Box>
+                <TextareaAutosize
+                    minRows={3}
+                    placeholder="Description"
+                    value={unsavedTask.description}
+                    onChange={(e) => handleFieldChange("description", e.target.value)}
+                    style={{
+                        width: '100%',
+                        resize: 'none',
+                        padding: '10px',
+                        fontSize: '14px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        backgroundColor: '#f9f9f9',
+                    }}
                 />
-            </div>
-            <hr/>
-            <input
-                value={task.title}
-                onChange={(e) => handleFieldChange("title", e.target.value)}
-                placeholder="Title"
-                className="text-2xl font-bold mb-4 text-gray-800 w-full outline-none border-none bg-transparent hover:shadow-md rounded"
-            />
-            <hr/>
-            <p className="text-sm text-gray-500 mb-4">
-                Created at: {new Date(task.createdAt).toLocaleDateString()} {new Date(task.createdAt).toLocaleTimeString()}
-            </p>
-            <hr/>
-            <p className="text-sm text-gray-500 mb-4">
-                Status: <span className={task.done ? "text-green-500" : "text-red-500"}>{task.done ? "Done" : "Not done"}</span>
-            </p>
-            <hr/>
-            <textarea
-                value={task.description}
-                onChange={(e) => handleFieldChange("description", e.target.value)}
-                placeholder="Description"
-                rows={3}
-                className="w-full text-sm text-gray-600 mb-4 outline-none border-none bg-transparent p-2 hover:shadow-md rounded"
-            />
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-gray-700">Subtasks</h3>
-                <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="flex items-center gap-1 text-sm text-green-600 hover:text-green-800"
-                >
-                    + Add Subtask
-                </button>
-            </div>
-            {showForm && (
-                <NewTaskForm
-                    userId={task.userId}
-                    parentId={task.id}
-                    onCreated={(newSubtask) =>
-                        setTask((prev) => ({
-                            ...prev,
-                            subtasks: [...prev.subtasks, newSubtask],
-                        }))
-                    }
-                />
-            )}
-            {task.subtasks && task.subtasks.length > 0 ? (
-                <div className="space-y-2">
-                    {task.subtasks.map((sub) => (
-                        <div
-                            key={sub.id}
-                            className="flex justify-between items-center bg-gray-50 p-3 rounded shadow-sm hover:shadow-md transition cursor-pointer"
-                        >
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="checkbox"
-                                    checked={sub.done}
-                                    onChange={(e) => {
-                                        e.stopPropagation();
-                                        handleToggle(sub);
-                                    }}
-                                    className="form-checkbox h-5 w-5 text-green-500"
-                                />
-                                <span onClick={() => navigate(`/task/${sub.id}`)} className={`text-gray-800 text-sm ${sub.done ? "line-through" : ""}`}>
-                                    {sub.title}
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => handleDelete(sub)}
-                                className="text-red-500 hover:text-red-700"
-                                title="Delete task"
-                            >
-                                <FaTrash />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p className="text-gray-400">No subtasks</p>
-            )}
-        </div>
+            </Paper>
+        </Box>
+
     );
 }

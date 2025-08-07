@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import {fetchTasks, updateTask, deleteTask} from "../api/todo";
+import { fetchTasks, updateTask, deleteTask } from "../api/todo";
 import NewTaskForm from "./NewTaskForm";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import {
+  Box,
+  Collapse,
+  Container, IconButton,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function TaskList() {
   const [tasks, setTasks] = useState([]);
@@ -11,69 +17,71 @@ export default function TaskList() {
   const { user } = useAuth();
 
   useEffect(() => {
-    try {
-      fetchTasks().then(setTasks);
-    } catch (err) {
-      console.error("Error:", err.message, err.meta);
-      toast.error(err.message, {
-        position: "top-center"
-      });
-    }
+    fetchTasks()
+        .then(setTasks)
+        .catch((err) => {
+          toast.error(err.message, { position: "top-center" });
+        });
   }, []);
 
   const handleToggle = async (task) => {
     try {
       task.done = !task.done;
       const updated = await updateTask(task.id, task);
-      setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
+      setTasks((prev) =>
+          prev.map((t) => (t.id === task.id ? updated : t))
+      );
     } catch (err) {
-      console.error("Error:", err.message, err.meta);
-      toast.error(err.message, {
-        position: "top-center"
-      });
+      toast.error(err.message, { position: "top-center" });
     }
   };
 
   const handleDelete = async (task) => {
     try {
       await deleteTask(task.id);
-      setTasks(tasks.filter((t) => t.id !== task.id));
-      toast.success("Task deleted", {
-        position: "top-center"
-      });
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+      toast.success("Task deleted", { position: "top-center" });
     } catch (err) {
-      console.error("Error:", err.message, err.meta);
-      toast.error(err.message, {
-        position: "top-center"
-      });
+      toast.error(err.message, { position: "top-center" });
     }
   };
 
   return (
-      <div className="max-w mx-auto mt-6">
-        <div className="flex justify-end mb-4">
-          <button
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Box display="flex" justifyContent="right" alignItems="center" mb={2}>
+          <IconButton
+              variant="contained"
               onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
+              sx={{
+                borderRadius: 1,
+                color: "#fff",
+                backgroundColor: "#22c55e",
+                "&:hover": {
+                  backgroundColor: "#16a34a",
+                },
+              }}
           >
-            + Add Task
-          </button>
-        </div>
-        {showForm && (
-            <NewTaskForm
-                userId={user.id}
-                parentId={user.parentId}
-                onCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
-            />
-        )}
-        {tasks.map((task) => (
-            <TaskItem
-                key={task.id}
-                task={task}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-            />
-        ))}
-      </div>
+            <AddIcon/>
+          </IconButton>
+        </Box>
+
+        <Collapse in={showForm} timeout="auto">
+          <NewTaskForm
+              userId={user.id}
+              parentId={user.parentId}
+              onCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
+          />
+        </Collapse>
+        <Box>
+          {tasks.map((task) => (
+              <TaskItem
+                  key={task.id}
+                  task={task}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+              />
+          ))}
+        </Box>
+      </Container>
   );
 }

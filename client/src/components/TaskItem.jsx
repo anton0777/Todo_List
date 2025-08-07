@@ -1,34 +1,67 @@
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
+import {
+    Box,
+    Checkbox,
+    IconButton,
+    Paper,
+    Typography,
+} from "@mui/material";
 
 export default function TaskItem({ task, onToggle, onDelete }) {
     const navigate = useNavigate();
 
     return (
-        <div className="flex justify-between items-center bg-white p-4 mb-2 rounded shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center gap-3">
-                <input
-                    type="checkbox"
+        <Paper
+            elevation={2}
+            onClick={() => navigate(`/task/${task.id}`)}
+            sx={{
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: 0.5,
+                mt: 2,
+                "&:hover": {
+                    boxShadow: 4,
+                },
+            }}
+        >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Checkbox
                     checked={task.done}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={() => onToggle(task)}
-                    className="form-checkbox h-5 w-5 text-green-500"
+                    color="success"
                 />
-                <div
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/task/${task.id}`)}
+                <Box
                 >
-                    <h3 className={`font-medium text-gray-800 ${task.done ? "line-through" : ""}`}>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            textDecoration: task.done ? "line-through" : "none",
+                        }}
+                    >
                         {task.title}
-                    </h3>
-                </div>
-            </div>
-            <button
-                onClick={() => onDelete(task)}
-                className="text-red-500 hover:text-red-700"
-                title="Delete task"
+                    </Typography>
+                </Box>
+            </Box>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(task);
+                }}
+                sx={{
+                    width: 40,
+                    height: 40,
+                    "&:hover": {
+                        color: "#c61818",
+                    },
+                }}
             >
                 <FaTrash />
-            </button>
-        </div>
+            </IconButton>
+        </Paper>
     );
 }
