@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server/server.js",
+    "dev:b": "tsx watch server/server.js",
     "check:lint": "node_modules/.bin/eslint ./ server/ client/ --ext .ts",
     "check:lint:fix": "npm run check:lint -- --fix",
     "check:ts": "node_modules/.bin/tsc --noEmit",
@@ -46,6 +46,7 @@
     "globals": "^16.3.0",
     "prettier": "3.6.2",
     "prisma": "^6.12.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
   },
