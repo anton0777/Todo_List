@@ -9,6 +9,7 @@ model Task {
   parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
   subtasks    Task[]   @relation("SubTasks")
   user        User     @relation(fields: [userId], references: [id])
+  files       File[]   @relation("TaskFiles")
 
   @@index([parentId], map: "Task_parentId_fkey")
   @@index([userId], map: "Task_userId_fkey")
