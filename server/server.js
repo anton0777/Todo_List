@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import tasks from './routes/tasks.js';
 import users from './routes/users.js';
 import auth from './routes/auth.js';
+import files from './routes/files.ts';
 import errorHandler from './middleware/error.js';
 
 dotenv.config({ path: './.env' });
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/auth', auth);
 app.use('/todo', tasks);
 app.use('/user', users);
+app.use('/files', files);
 app.use(errorHandler);
 
 app.listen(port, () => {

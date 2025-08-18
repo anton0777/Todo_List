@@ -1,73 +1,69 @@
 import { CreateTask, UpdateTask } from '../validators/taskValidator.js';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '../generated/prisma/index.js';
-const prisma = new PrismaClient();
 
 export class TaskService {
-  constructor(taskRepository) {
+  constructor(taskRepository, fileService) {
     this.taskRepository = taskRepository;
+    this.fileService = fileService;
   }
 
   getTasks = async (headers) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-    return await this.taskRepository.getTasks(userId);
+    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+    return this.taskRepository.getTasks(userId);
   };
 
   getTask = async (headers, taskId) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
     taskId = parseInt(taskId);
-    return await this.taskRepository.getTask(userId, taskId);
+    return this.taskRepository.getTask(userId, taskId);
   };
 
   createTask = async (headers, taskData) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
     const parsedData = await CreateTask.parseAsync(taskData);
-    return await this.taskRepository.createTask(userId, parsedData);
+    return this.taskRepository.createTask(userId, parsedData);
   };
 
   updateTask = async (headers, taskId, taskData) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
     const parsedData = await UpdateTask.parseAsync(taskData);
     taskId = parseInt(taskId);
-    return await this.taskRepository.updateTask(userId, taskId, parsedData);
+    return this.taskRepository.updateTask(userId, taskId, parsedData);
   };
 
   deleteTask = async (headers, taskId) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
     taskId = parseInt(taskId);
-    await deleteTaskWithSubtasks(userId, taskId);
+    await this.deleteTaskWithSubtasks(userId, taskId);
   };
-}
 
-async function deleteTaskWithSubtasks(userId, taskId) {
-  const task = await prisma.task.findUnique({
-    where: {
-      id: taskId,
-      userId: userId,
-    },
-    include: { subtasks: true },
-  });
+  deleteTaskWithSubtasks = async (userId, taskId) => {
+    const task = await this.taskRepository.getTask(userId, taskId);
 
-  if (!task) {
-    throw new Error(`Task with id ${taskId} not found`);
-  }
+    if (!task) {
+      throw new Error(`Task with id ${taskId} not found`);
+    }
 
-  await Promise.all(
-    task.subtasks.map((subtask) => deleteTaskWithSubtasks(userId, subtask.id))
-  );
+    await Promise.all(
+      task.subtasks.map((subtask) =>
+        this.deleteTaskWithSubtasks(userId, subtask.id)
+      )
+    );
 
-  await prisma.task.delete({ where: { id: taskId } });
-}
+    await this.fileService.deleteFilesByTask(taskId);
+    await this.taskRepository.deleteTask(userId, taskId);
+  };
 
-function getUserIdFromToken(token) {
-  if (!token) {
-    throw new Error('Unauthorized');
-  }
+  getUserIdFromToken = (token) => {
+    if (!token) {
+      throw new Error('Unauthorized');
+    }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decoded || !decoded.id) {
-    throw new Error('Invalid token');
-  }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded || !decoded.id) {
+      throw new Error('Invalid token');
+    }
 
-  return parseInt(decoded.id);
+    return parseInt(decoded.id);
+  };
 }
