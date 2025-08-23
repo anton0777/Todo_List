@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:b": "tsx watch server/server.js",
+    "minioClient": "tsx server/minio/bucketInit.ts",
     "check:lint": "node_modules/.bin/eslint ./ server/ client/ --ext .ts",
     "check:lint:fix": "npm run check:lint -- --fix",
     "check:ts": "node_modules/.bin/tsc --noEmit",
@@ -22,9 +23,11 @@
     "esm": "^3.2.25",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^8.0.5",
     "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "uuid": "^11.1.0",
     "zod": "^4.0.5"
   },
   "devDependencies": {
@@ -34,8 +37,10 @@
     "@swc/core": "^1.13.3",
     "@swc/helpers": "^0.5.17",
     "@tsconfig/node22": "^22.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.2.0",
     "cors": "^2.8.5",
     "eslint": "^9.32.0",

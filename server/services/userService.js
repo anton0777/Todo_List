@@ -1,57 +1,44 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import {CreateUser, UpdateUser} from "../validators/userValidator.js";
+import { UpdateUser } from '../validators/userValidator.js';
 
 export class UserService {
-    constructor(userRepository) {
-        this.userRepository = userRepository;
-    }
+  constructor(userRepository, taskService) {
+    this.userRepository = userRepository;
+    this.taskService = taskService;
+  }
 
   getUsers = async () => {
-    try {
-      return await this.userRepository.getUsers();
-    } catch (error) {
-      throw error;
-    }
+    return this.userRepository.getUsers();
   };
 
   getUser = async (headers) => {
-    try {
-      const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-      return await this.userRepository.getUser(userId);
-    } catch (error) {
-      throw error;
-    }
+    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    return this.userRepository.getUser(userId);
   };
 
   createUser = async (userData) => {
-    try {
-      return await this.userRepository.createUser(userData);
-    } catch (error) {
-      throw error;
-    }
+    return this.userRepository.createUser(userData);
   };
 
   updateUser = async (headers, userData) => {
-    try {
-      const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-      const parsedData = await UpdateUser.parseAsync(userData);
-      if (parsedData.password) {
-          parsedData.password = await bcrypt.hash(parsedData.password, 6);
-      }
-      return await this.userRepository.updateUser(userId, parsedData);
-    } catch (error) {
-      throw error;
+    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const parsedData = await UpdateUser.parseAsync(userData);
+    if (parsedData.password) {
+      parsedData.password = await bcrypt.hash(parsedData.password, 6);
     }
+    return this.userRepository.updateUser(userId, parsedData);
   };
 
   deleteUser = async (headers) => {
-    try {
-      const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-      return await this.userRepository.deleteUser(userId);
-    } catch (error) {
-      throw error;
-    }
+    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+    const tasks = await this.taskService.getTasks(headers);
+    await Promise.all(
+      tasks.map((task) =>
+        this.taskService.deleteTaskWithSubtasks(userId, task.id)
+      )
+    );
+    return this.userRepository.deleteUser(userId);
   };
 }
 

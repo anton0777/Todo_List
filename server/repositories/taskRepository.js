@@ -42,11 +42,16 @@ export class TaskRepository {
   };
 
   deleteTask = async (userId, taskId) => {
-    return this.prisma.task.delete({
-      where: {
-        id: taskId,
-        userId: userId,
-      },
-    });
+    return this.prisma.$transaction([
+      this.prisma.file.deleteMany({
+        where: { taskId: taskId },
+      }),
+      this.prisma.task.delete({
+        where: {
+          id: taskId,
+          userId: userId,
+        },
+      }),
+    ]);
   };
 }
