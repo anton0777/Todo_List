@@ -1,3 +1,22 @@
+model File {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  mimetype   MimeType
+  size       Int
+  path       String
+  taskId     Int
+  task       Task     @relation("TaskFiles", fields: [taskId], references: [id])
+  uploadedAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+enum MimeType {
+  image_jpeg
+  image_png
+  application_pdf
+}
+
 model Task {
   id          Int      @id @default(autoincrement())
   title       String
@@ -9,6 +28,7 @@ model Task {
   parent      Task?    @relation("SubTasks", fields: [parentId], references: [id])
   subtasks    Task[]   @relation("SubTasks")
   user        User     @relation(fields: [userId], references: [id])
+  files       File[]   @relation("TaskFiles")
 
   @@index([parentId], map: "Task_parentId_fkey")
   @@index([userId], map: "Task_userId_fkey")

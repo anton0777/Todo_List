@@ -120,6 +120,16 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.FileScalarFieldEnum = {
+  id: 'id',
+  filename: 'filename',
+  mimetype: 'mimetype',
+  size: 'size',
+  path: 'path',
+  taskId: 'taskId',
+  uploadedAt: 'uploadedAt'
+};
+
 exports.Prisma.TaskScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -142,6 +152,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.FileOrderByRelevanceFieldEnum = {
+  filename: 'filename',
+  path: 'path'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -157,9 +172,14 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   password: 'password',
   name: 'name'
 };
-
+exports.MimeType = exports.$Enums.MimeType = {
+  image_jpeg: 'image_jpeg',
+  image_png: 'image_png',
+  application_pdf: 'application_pdf'
+};
 
 exports.Prisma.ModelName = {
+  File: 'File',
   Task: 'Task',
   User: 'User'
 };
