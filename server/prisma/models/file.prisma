@@ -1,0 +1,18 @@
+model File {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  mimetype   MimeType
+  size       Int
+  path       String
+  taskId     Int
+  task       Task     @relation("TaskFiles", fields: [taskId], references: [id])
+  uploadedAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+enum MimeType {
+  image_jpeg
+  image_png
+  application_pdf
+}
