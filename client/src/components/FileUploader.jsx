@@ -11,7 +11,7 @@ import {
 const ACCEPT = ["image/jpeg", "image/png", "application/pdf"];
 const MAX_BYTES = 5 * 1024 * 1024;
 
-export default function FileUploader({ taskId, onUploaded }) {
+export default function FileUploader({ taskId }) {
   const inputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +41,7 @@ export default function FileUploader({ taskId, onUploaded }) {
 
       await uploadToPresignedUrl(uploadUrl, file);
 
-      const saved = await attachFile({
+      await attachFile({
         taskId,
         objectKey,
         filename: file.name,
@@ -50,7 +50,6 @@ export default function FileUploader({ taskId, onUploaded }) {
       });
 
       toast.success("File uploaded", { position: "top-center" });
-      onUploaded?.(saved);
     } catch (err) {
       toast.error(err.message || "Upload error", { position: "top-center" });
       console.error(err);

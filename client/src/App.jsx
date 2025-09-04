@@ -8,39 +8,42 @@ import NotFoundPage from "./pages/NotFoundPage";
 import {ToastContainer} from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { WsProvider } from "./context/WsContext";
 
 function App() {
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <ToastContainer />
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <Dashboard />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/task/:id"
-                        element={
-                            <ProtectedRoute>
-                                <TaskPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="*"
-                        element={<NotFoundPage />}
-                    />
-                </Routes>
-            </AuthProvider>
-        </BrowserRouter>
-    );
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <WsProvider>
+          <ToastContainer />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/task/:id"
+              element={
+                <ProtectedRoute>
+                  <TaskPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="*"
+              element={<NotFoundPage />}
+            />
+          </Routes>
+        </WsProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
 export default App;

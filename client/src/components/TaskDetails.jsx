@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-
   Box, Typography, IconButton, TextField, Collapse, Paper, Divider, TextareaAutosize,
 } from "@mui/material";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
@@ -12,7 +11,7 @@ import AddIcon from "@mui/icons-material/Add";
 import TaskItem from "./TaskItem.jsx";
 import FileUploader from "./FileUploader";
 import FileList from "./FileList";
-import { listFilesByTask, deleteAttachment, getFileUrl, getFile } from '../api/files.jsx';
+import { listFilesByTask, deleteAttachment, getFileUrl, getFile } from "../api/files.jsx";
 
 export default function TaskDetails({ taskId }) {
   const [task, setTask] = useState(null);
@@ -27,13 +26,44 @@ export default function TaskDetails({ taskId }) {
         const data = await getTaskByUserId(taskId);
         setTask(data);
         setUnsavedTask(data);
-        const listFiles = await listFilesByTask(taskId);
-        setFiles(listFiles);
+        const fetchedFiles = await listFilesByTask(taskId);
+        setFiles(fetchedFiles);
       } catch (err) {
         toast.error(err.message, { position: "top-center" });
       }
     }
     load();
+  }, [taskId]);
+
+  useEffect(() => {
+    function onWs(e) {
+      const { type, payload } = e.detail || {};
+      if (!payload || payload.taskId !== Number(taskId)) return;
+      if (type === "file_processing_started") {
+        setFiles((prev) => {
+          return [
+              {
+                id: payload.fileId,
+                taskId: Number(taskId),
+                filename: "Processing…",
+                size: 0,
+                mimetype: "application/octet-stream",
+                status: "processing",
+              },
+              ...prev,
+            ];
+        });
+      }
+
+      if (type === "file_processing_complete") {
+        setFiles((prev) =>
+          prev.map((file) => (file.id === payload.fileId ? { ...file, filename: payload.filename, size: payload.size, mimetype: payload.mimetype, status: payload.status, previewPath: payload.previewPath } : file))
+        );
+      }
+    }
+
+    window.addEventListener("ws-message", onWs);
+    return () => window.removeEventListener("ws-message", onWs);
   }, [taskId]);
 
   const handleToggle = async (sub) => {
@@ -54,9 +84,8 @@ export default function TaskDetails({ taskId }) {
     toast.success("Task deleted", { position: "top-center" });
   };
 
-  const handleFieldChange = (field, value) => {
+  const handleFieldChange = (field, value) =>
     setUnsavedTask((prev) => ({ ...prev, [field]: value }));
-  };
 
   const handleSave = async () => {
     if (unsavedTask.title.trim() === "") {
@@ -68,13 +97,10 @@ export default function TaskDetails({ taskId }) {
     toast.success("Task saved", { position: "top-center" });
   };
 
-  const hasChanges = () =>
-    unsavedTask?.title !== task?.title ||
-    unsavedTask?.description !== task?.description;
-
-  const handleUploaded = (newFile) => {
-    setFiles((prev) => [newFile, ...prev]);
-  };
+  const hasChanges =
+    !!unsavedTask &&
+    !!task &&
+    (unsavedTask.title !== task.title || unsavedTask.description !== task.description);
 
   const handleDeleteFile = async (file) => {
     try {
@@ -89,10 +115,8 @@ export default function TaskDetails({ taskId }) {
   const handleDownloadFile = async (file) => {
     try {
       const { url } = await getFileUrl(file.id);
-
-      const res = getFile(url);
+      const res = await getFile(url);
       const blob = await res.blob();
-
       const blobUrl = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
@@ -117,11 +141,7 @@ export default function TaskDetails({ taskId }) {
           <IconButton sx={{ color: "#000000" }} onClick={() => navigate(-1)}>
             <FaArrowLeft />
           </IconButton>
-          <IconButton
-            sx={{ color: "#000000" }}
-            onClick={handleSave}
-            disabled={!hasChanges()}
-          >
+          <IconButton sx={{ color: "#000000" }} onClick={handleSave} disabled={!hasChanges}>
             <FaSave />
           </IconButton>
         </Box>
@@ -154,9 +174,7 @@ export default function TaskDetails({ taskId }) {
             onClick={() => setShowForm(!showForm)}
             size="small"
             sx={{
-              mb: 1,
-              borderRadius: 1,
-              color: "#fff",
+              mb: 1, borderRadius: 1, color: "#fff",
               backgroundColor: "#22c55e",
               "&:hover": { backgroundColor: "#16a34a" },
             }}
@@ -181,12 +199,7 @@ export default function TaskDetails({ taskId }) {
         <Box mb={3}>
           {unsavedTask.subtasks?.length > 0 ? (
             unsavedTask.subtasks.map((sub) => (
-              <TaskItem
-                key={sub.id}
-                task={sub}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-              />
+              <TaskItem key={sub.id} task={sub} onToggle={handleToggle} onDelete={handleDelete} />
             ))
           ) : (
             <Typography color="textSecondary">No subtasks</Typography>
@@ -196,7 +209,7 @@ export default function TaskDetails({ taskId }) {
         <Divider sx={{ my: 2 }} />
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography variant="h6" fontWeight="bold">Attachments</Typography>
-          <FileUploader taskId={unsavedTask.id} onUploaded={handleUploaded} />
+          <FileUploader taskId={unsavedTask.id} />
         </Box>
 
         {files.length > 0 ? (
@@ -212,13 +225,8 @@ export default function TaskDetails({ taskId }) {
           value={unsavedTask.description}
           onChange={(e) => handleFieldChange("description", e.target.value)}
           style={{
-            width: "100%",
-            resize: "none",
-            padding: "10px",
-            fontSize: "14px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            backgroundColor: "#f9f9f9",
+            width: "100%", resize: "none", padding: "10px", fontSize: "14px",
+            borderRadius: "4px", border: "1px solid #ccc", backgroundColor: "#f9f9f9",
           }}
         />
       </Paper>
