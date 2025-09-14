@@ -1,26 +1,29 @@
-import {
-  ListItemText, IconButton, Box, Paper,
-} from '@mui/material';
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import ImageIcon from "@mui/icons-material/Image";
-import DownloadIcon from "@mui/icons-material/Download";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { getFileUrl } from "../api/files.jsx";
-import { toast } from "react-toastify";
+import { ListItemText, IconButton, Box, Paper } from '@mui/material';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import DownloadIcon from '@mui/icons-material/Download';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getFileUrl } from '../api/files.jsx';
+import { toast } from 'react-toastify';
 
 const formatBytes = (b) => {
-  if (!b && b !== 0) return "";
-  const u = ["B","KB","MB"];
-  let i=0; let v=b;
-  while (v>=1024 && i<u.length-1) { v/=1024; i++; }
-  return `${v.toFixed( (i===0)?0:1 )} ${u[i]}`;
+  if (!b && b !== 0) return '';
+  const u = ['B', 'KB', 'MB'];
+  let i = 0;
+  let v = b;
+  while (v >= 1024 && i < u.length - 1) {
+    v /= 1024;
+    i++;
+  }
+  return `${v.toFixed(i === 0 ? 0 : 1)} ${u[i]}`;
 };
 
 const iconByMime = (m) => {
-  if (m === "application_pdf" || m === "application/pdf") return <PictureAsPdfIcon />;
-  if (m === "image_png" || m === "image/png") return <ImageIcon />;
-  if (m === "image_jpeg" || m === "image/jpeg") return <ImageIcon />;
+  if (m === 'application_pdf' || m === 'application/pdf')
+    return <PictureAsPdfIcon />;
+  if (m === 'image_png' || m === 'image/png') return <ImageIcon />;
+  if (m === 'image_jpeg' || m === 'image/jpeg') return <ImageIcon />;
   return <InsertDriveFileIcon />;
 };
 
@@ -28,9 +31,11 @@ export default function FileList({ files, onDelete, onDownload }) {
   const handleOpening = async (file) => {
     try {
       const { url } = await getFileUrl(file.id);
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (err) {
-      toast.error(err.message || "File opening error", { position: "top-center" });
+      toast.error(err.message || 'File opening error', {
+        position: 'top-center',
+      });
     }
   };
 
@@ -55,9 +60,7 @@ export default function FileList({ files, onDelete, onDownload }) {
             },
           }}
         >
-          <Box sx={{ color: '#787878' }}>
-            {iconByMime(file.mimetype)}
-          </Box>
+          <Box sx={{ color: '#787878' }}>{iconByMime(file.mimetype)}</Box>
           <ListItemText
             primary={file.filename}
             secondary={formatBytes(file.size)}
