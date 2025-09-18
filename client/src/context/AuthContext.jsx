@@ -38,19 +38,20 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (info) => {
-        try {
+        // try {
             const data = await registerUser(info);
             localStorage.setItem("token", data.token);
             navigate("/login");
             toast.success("User was successfully created", {
                 position: "top-center",
             });
-        } catch (err) {
-            console.error(err.meta ? err.meta : err);
-            toast.error(err.message, {
-                position: "top-center",
-            });
-        }
+        // } catch (err) {
+        //     console.error(err.meta ? err.meta : err);
+        //     console.error(err.meta.error[0].path[0]);
+        //     toast.error(err.message, {
+        //         position: "top-center",
+        //     });
+        // }
     };
 
     const logout = () => {

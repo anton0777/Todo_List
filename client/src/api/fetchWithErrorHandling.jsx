@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+
 export async function fetchWithErrorHandling(url, options = {}) {
     const headers = {
         "Content-Type": "application/json",
@@ -31,6 +33,7 @@ export async function fetchWithErrorHandling(url, options = {}) {
         err.meta = meta;
         err.status = res.status;
         console.error(err.meta);
+        toast.error(err.meta, { position: "top-center" });
         throw err;
     }
 

@@ -9,18 +9,44 @@ import {
     Typography,
     Paper
 } from "@mui/material";
+import { toast } from 'react-toastify';
 
 export default function Register() {
     const { register } = useAuth();
     const [form, setForm] = useState({ email: "", password: "", name: "" });
+    const [fieldErrors, setFieldErrors] = useState({ email: "", password: "", name: "" });
+    const [generalError, setGeneralError] = useState("");
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+
+        if (fieldErrors[e.target.name]) {
+            setFieldErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+        }
+        if (generalError) setGeneralError("");
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        register(form);
+        setFieldErrors({ email: "", password: "", name: "" });
+        setGeneralError("");
+
+        try {
+          await register(form);
+        } catch (err) {
+          if (err.meta && err.meta.error) {
+              err.meta.error.forEach((error) => {
+                  if (error.path && error.path[0] && Object.prototype.hasOwnProperty.call(fieldErrors, error.path[0])) {
+                      setFieldErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
+                  } else {
+                      setGeneralError(error.message);
+                  }
+              });
+          } else {
+              setGeneralError(err.message || "Registration failed");
+          }
+          toast.error(err.message, { position: "top-center" });
+        }
     };
 
     return (
@@ -49,6 +75,8 @@ export default function Register() {
                             onChange={handleChange}
                             fullWidth
                             margin="dense"
+                            error={fieldErrors.name}
+                            helperText={fieldErrors.name}
                         />
                         <TextField
                             label="Email"
@@ -59,6 +87,8 @@ export default function Register() {
                             fullWidth
                             margin="dense"
                             required
+                            error={fieldErrors.email}
+                            helperText={fieldErrors.email}
                         />
                         <TextField
                             label="Password"
@@ -69,6 +99,8 @@ export default function Register() {
                             fullWidth
                             margin="dense"
                             required
+                            error={fieldErrors.password}
+                            helperText={fieldErrors.password}
                         />
                         <Button
                             variant="contained"
