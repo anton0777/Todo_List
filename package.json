@@ -6,7 +6,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:b": "tsx watch server/server.js",
     "dev:f": "cd client && vite",
-    "minioClient": "tsx server/minio/bucketInit.ts",
     "check:lint": "node_modules/.bin/eslint ./ server/ client/ --ext .ts",
     "check:lint:fix": "npm run check:lint -- --fix",
     "check:ts": "node_modules/.bin/tsc --noEmit",
