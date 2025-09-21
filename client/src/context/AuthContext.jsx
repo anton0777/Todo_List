@@ -21,37 +21,17 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        try {
-            const data = await loginUser(credentials);
-            localStorage.setItem("token", data.token);
-            setUser(data);
-            navigate("/");
-            toast.success("User logged in successfully", {
-                position: "top-center",
-            });
-        } catch (err) {
-            console.error(err.meta ? err.meta : err);
-            toast.error(err.message, {
-                position: "top-center",
-            });
-        }
+      const data = await loginUser(credentials);
+      localStorage.setItem("token", data.token);
+      setUser(data);
+      navigate("/");
     };
 
     const register = async (info) => {
-        // try {
-            const data = await registerUser(info);
-            localStorage.setItem("token", data.token);
-            navigate("/login");
-            toast.success("User was successfully created", {
-                position: "top-center",
-            });
-        // } catch (err) {
-        //     console.error(err.meta ? err.meta : err);
-        //     console.error(err.meta.error[0].path[0]);
-        //     toast.error(err.message, {
-        //         position: "top-center",
-        //     });
-        // }
+      const data = await registerUser(info);
+      localStorage.setItem("token", data.token);
+      setUser(data);
+      navigate("/");
     };
 
     const logout = () => {

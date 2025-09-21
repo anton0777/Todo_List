@@ -35,13 +35,23 @@ export default function Register() {
           await register(form);
         } catch (err) {
           if (err.meta && err.meta.error) {
+            if (Array.isArray(err.meta.error)) {
               err.meta.error.forEach((error) => {
-                  if (error.path && error.path[0] && Object.prototype.hasOwnProperty.call(fieldErrors, error.path[0])) {
-                      setFieldErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
-                  } else {
-                      setGeneralError(error.message);
-                  }
+                if (error.path && error.path[0] && Object.prototype.hasOwnProperty.call(fieldErrors, error.path[0])) {
+                  setFieldErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
+                } else {
+                  setGeneralError(error.message);
+                }
               });
+            } else if (typeof err.meta.error === 'object') {
+              Object.keys(err.meta.error).forEach((key) => {
+                if (Object.prototype.hasOwnProperty.call(fieldErrors, key)) {
+                  setFieldErrors((prev) => ({ ...prev, [key]: err.meta.error[key] }));
+                } else {
+                  setGeneralError(err.meta.error[key]);
+                }
+              });
+            }
           } else {
               setGeneralError(err.message || "Registration failed");
           }
