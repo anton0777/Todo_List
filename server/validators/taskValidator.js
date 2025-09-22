@@ -26,7 +26,6 @@ export const CreateTask = z.object({
     }),
   description: z.string(),
   done: z.boolean().optional(),
-  userId: z.number(),
   parentId: z.number().optional(),
 });
 
