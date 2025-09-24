@@ -7,29 +7,14 @@ import {
   uploadToPresignedUrl,
   attachFile,
 } from "../api/files.jsx";
-
-const ACCEPT = ["image/jpeg", "image/png", "application/pdf"];
-const MAX_BYTES = 5 * 1024 * 1024;
+import { UploadButton } from '@bytescale/upload-widget-react';
 
 export default function FileUploader({ taskId }) {
   const inputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
-  const handleClick = () => inputRef.current?.click();
-
   const handleChange = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-
-    if (!file) return;
-    if (!ACCEPT.includes(file.type)) {
-      toast.error("Only JPG, PNG or PDF allowed", { position: "top-center" });
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      toast.error("Max file size is 5MB", { position: "top-center" });
-      return;
-    }
+    const file = e[0].originalFile.file;
 
     try {
       setLoading(true);
@@ -52,42 +37,57 @@ export default function FileUploader({ taskId }) {
       toast.success("File uploaded", { position: "top-center" });
     } catch (err) {
       toast.error(err.message || "Upload error", { position: "top-center" });
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const options = {
+    apiKey: "BYTESCALE_API_KEY",
+    mimeTypes: [
+      "image/jpeg", "image/png", "application/pdf"
+    ],
+    maxFileCount: 1,
+    maxFileSizeBytes: 5 * 1024 * 1024,
+    editor: {
+      images: {
+        crop: false,
+        preview: true,
+      }
+    },
+    styles: {
+      colors: {
+        primary: "#22c55e",
+      }
+    }
+  };
+
   return (
     <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPT.join(",")}
-        onChange={handleChange}
-        style={{ display: "none" }}
-      />
-      <span>
-        <IconButton
-          size="small"
-          onClick={handleClick}
-          disabled={loading}
-          sx={{
-            borderRadius: 1,
-            color: "#fff",
-            backgroundColor: "#22c55e",
-            "&:hover": { backgroundColor: "#16a34a" },
-            width: 32,
-            height: 32,
-          }}
-        >
-          {loading ? (
-            <CircularProgress size={18} sx={{ color: "#fff" }} />
-          ) : (
-            <UploadFileIcon fontSize="small" />
-          )}
-        </IconButton>
-      </span>
+      <UploadButton options={options}
+        onComplete={handleChange}>
+        {({onClick}) =>
+          <IconButton
+            size="small"
+            onClick={onClick}
+            disabled={loading}
+            sx={{
+              borderRadius: 1,
+              color: "#fff",
+              backgroundColor: "#22c55e",
+              "&:hover": { backgroundColor: "#16a34a" },
+              width: 32,
+              height: 32,
+            }}
+          >
+            {loading ? (
+              <CircularProgress size={18} sx={{ color: "#fff" }} />
+            ) : (
+              <UploadFileIcon fontSize="small" />
+            )}
+          </IconButton>
+        }
+      </UploadButton>
     </>
   );
 }
