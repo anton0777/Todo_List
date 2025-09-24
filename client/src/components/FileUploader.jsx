@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { IconButton, CircularProgress } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { toast } from "react-toastify";
@@ -10,7 +10,6 @@ import {
 import { UploadButton } from '@bytescale/upload-widget-react';
 
 export default function FileUploader({ taskId }) {
-  const inputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = async (e) => {
