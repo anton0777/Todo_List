@@ -5,6 +5,7 @@ import { FileRepository } from '../repositories/fileRepository.js';
 import { TAttachReq, TPresignReq, TFile } from '../validators/fileValidator.js';
 import { BucketItem } from 'minio';
 import { wsHub } from '../server.js';
+import { WSMessageType } from '../ws/wsHub.js';
 
 const MAX_BYTES = Number(process.env.FILE_MAX_BYTES ?? 5 * 1024 * 1024);
 
@@ -80,7 +81,7 @@ export class FileService {
     });
 
     wsHub.broadcast({
-      type: 'file_processing_started',
+      type: WSMessageType.file_processing_started,
       payload: { fileId: created.id, taskId: created.taskId },
     });
 
@@ -99,7 +100,7 @@ export class FileService {
 
     const { url } = await this.getDownloadUrl(updated.id);
     wsHub.broadcast({
-      type: 'file_processing_complete',
+      type: WSMessageType.file_processing_complete,
       payload: {
         fileId: updated.id,
         taskId: updated.taskId,
