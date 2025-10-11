@@ -18,11 +18,15 @@ export class AuthService {
   loginUser = async (userData) => {
     const { email, password } = userData;
     const user = await this.authRepository.loginUser(email);
-    if (!user) throw new Error('Invalid email or password');
+    if (!user) {
+      throw new Error('Invalid email or password');
+    }
     const { password: hashedPassword } =
       await this.authRepository.hashedPassword(email);
     const isPasswordValid = await bcrypt.compare(password, hashedPassword);
-    if (!isPasswordValid) throw new Error('Invalid email or password');
+    if (!isPasswordValid) {
+      throw new Error('Invalid email or password');
+    }
     user.token = await this.jwtSign(user);
     return user;
   };

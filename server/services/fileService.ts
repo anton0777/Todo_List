@@ -140,7 +140,9 @@ export class FileService {
 
   async deleteFile(fileId: number) {
     const file = await this.fileRepository.findFileById(fileId);
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     await this.fileRepository.deleteFileById(fileId);
     await minioClient.removeObject(MINIO_BUCKET, file.path);

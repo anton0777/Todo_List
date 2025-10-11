@@ -121,7 +121,9 @@ export default function TaskDetails({ taskId }) {
     }
   };
 
-  if (!unsavedTask) return <Typography align="center">Loading...</Typography>;
+  if (!unsavedTask) {
+    return <Typography align="center">Loading...</Typography>;
+  }
 
   return (
     <Box sx={{ minHeight: '100vh' }}>

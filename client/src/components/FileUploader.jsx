@@ -21,7 +21,9 @@ export default function FileUploader({ taskId, onUploaded }) {
     const file = e.target.files?.[0];
     e.target.value = '';
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     if (!ACCEPT.includes(file.type)) {
       toast.error('Only JPG, PNG or PDF allowed', { position: 'top-center' });
       return;
