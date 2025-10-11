@@ -114,7 +114,9 @@ export class FileService {
 
   async getDownloadUrl(fileId: number) {
     const file = await this.fileRepository.findFileById(fileId);
-    if (!file) throw new Error('File not found');
+    if (!file) {
+      throw new Error('File not found');
+    }
 
     const url: string = await minioClient.presignedGetObject(
       MINIO_BUCKET,
