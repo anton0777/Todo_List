@@ -33,12 +33,12 @@ export class AuthService {
 
   jwtSign = async (user) => {
     const { id: userId } = await this.authRepository.userId(user.email);
-    return (user.token = jwt.sign(
+    return jwt.sign(
       {
         id: userId,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
-    ));
+    );
   };
 }
