@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma/index.js';
+import { PrismaClient } from '@prisma/client';
 
 export class FileRepository {
   constructor(private prismaClient: PrismaClient) {}
@@ -25,6 +25,11 @@ export class FileRepository {
       },
     });
   }
+
+  updateFile = (
+    id: number,
+    data: Partial<{ status: 'processing' | 'ready' | 'failed' }>
+  ) => this.prismaClient.file.update({ where: { id }, data });
 
   deleteFileById(id: number) {
     return this.prismaClient.file.delete({ where: { id } });

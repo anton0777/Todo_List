@@ -8,7 +8,6 @@
     "dev:f": "cd client && vite",
     "dev": "concurrently 'npm run dev:b' 'npm run dev:f'",
     "db:init": "prisma migrate dev",
-    "minioClient": "tsx server/minio/bucketInit.ts",
     "check:lint": "node_modules/.bin/eslint ./ server/ client/ --ext .ts",
     "check:lint:fix": "npm run check:lint -- --fix",
     "check:ts": "node_modules/.bin/tsc --noEmit",
@@ -40,7 +39,9 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.7.0",
     "react-toastify": "^11.0.5",
+    "type-fest": "^5.0.1",
     "uuid": "^11.1.0",
+    "ws": "^8.18.3",
     "zod": "^4.0.5"
   },
   "devDependencies": {
@@ -57,6 +58,7 @@
     "@types/node": "^24.2.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",

@@ -12,6 +12,16 @@ const errorHandler = (err, _req, res, _next) => {
   }
 
   if (err?.constructor?.name.startsWith('Prisma')) {
+    if (err.code === 'P2002') {
+      return res.status(400).json({
+        message: 'A new user cannot be created with this email',
+        meta: {
+          name: err.constructor.name,
+          code: err.code,
+          target: err.meta.target,
+        },
+      });
+    }
     return res.status(400).json({
       message: 'Database error occurred',
       meta: {
