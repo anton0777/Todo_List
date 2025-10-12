@@ -1,14 +1,13 @@
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import TaskPage from "./pages/TaskPage";
-import ProtectedRoute from "./routes/ProtectedRoute";
-import NotFoundPage from "./pages/NotFoundPage";
-import {ToastContainer} from "react-toastify";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { WsProvider } from "./context/WsContext";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import TaskPage from './pages/TaskPage';
+import ProtectedRoute from './routes/ProtectedRoute';
+import NotFoundPage from './pages/NotFoundPage';
+import { ToastContainer } from 'react-toastify';
+import { AuthProvider } from './components/AuthProvider.jsx';
+import { WsProvider } from './context/WsContext';
 
 function App() {
   return (
@@ -35,10 +34,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="*"
-              element={<NotFoundPage />}
-            />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </WsProvider>
       </AuthProvider>

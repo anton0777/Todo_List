@@ -1,12 +1,13 @@
 model File {
-  id         Int      @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   filename   String
   mimetype   MimeType
   size       Int
   path       String
   taskId     Int
-  task       Task     @relation("TaskFiles", fields: [taskId], references: [id])
-  uploadedAt DateTime @default(now())
+  task       Task       @relation("TaskFiles", fields: [taskId], references: [id])
+  uploadedAt DateTime   @default(now())
+  status     FileStatus @default(processing)
 
   @@index([taskId])
 }
@@ -15,4 +16,10 @@ enum MimeType {
   image_jpeg
   image_png
   application_pdf
+}
+
+enum FileStatus {
+  processing
+  ready
+  failed
 }

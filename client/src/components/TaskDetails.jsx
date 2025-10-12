@@ -1,17 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
-  Box, Typography, IconButton, TextField, Collapse, Paper, Divider, TextareaAutosize,
-} from "@mui/material";
-import { FaArrowLeft, FaSave } from "react-icons/fa";
-import { deleteTask, getTaskByUserId, updateTask } from "../api/todo";
-import NewTaskForm from "./NewTaskForm";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import AddIcon from "@mui/icons-material/Add";
-import TaskItem from "./TaskItem.jsx";
-import FileUploader from "./FileUploader";
-import FileList from "./FileList";
-import { listFilesByTask, deleteAttachment, getFileUrl, getFile } from "../api/files.jsx";
+  Box,
+  Typography,
+  IconButton,
+  TextField,
+  Collapse,
+  Paper,
+  Divider,
+  TextareaAutosize,
+} from '@mui/material';
+import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { deleteTask, getTaskByUserId, updateTask } from '../api/todo';
+import NewTaskForm from './NewTaskForm';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import AddIcon from '@mui/icons-material/Add';
+import TaskItem from './TaskItem.jsx';
+import FileUploader from './FileUploader';
+import FileList from './FileList';
+import {
+  listFilesByTask,
+  deleteAttachment,
+  getFileUrl,
+  getFile,
+} from '../api/files.jsx';
 
 export default function TaskDetails({ taskId }) {
   const [task, setTask] = useState(null);
@@ -29,7 +41,7 @@ export default function TaskDetails({ taskId }) {
         const fetchedFiles = await listFilesByTask(taskId);
         setFiles(fetchedFiles);
       } catch (err) {
-        toast.error(err.message, { position: "top-center" });
+        toast.error(err.message, { position: 'top-center' });
       }
     }
     load();
@@ -39,31 +51,42 @@ export default function TaskDetails({ taskId }) {
     function onWs(e) {
       const { type, payload } = e.detail || {};
       if (!payload || payload.taskId !== Number(taskId)) return;
-      if (type === "file_processing_started") {
+      if (type === 'file_processing_started') {
         setFiles((prev) => {
           return [
-              {
-                id: payload.fileId,
-                taskId: Number(taskId),
-                filename: "Processing…",
-                size: 0,
-                mimetype: "application/octet-stream",
-                status: "processing",
-              },
-              ...prev,
-            ];
+            {
+              id: payload.fileId,
+              taskId: Number(taskId),
+              filename: 'Processing…',
+              size: 0,
+              mimetype: 'application/octet-stream',
+              status: 'processing',
+            },
+            ...prev,
+          ];
         });
       }
 
-      if (type === "file_processing_complete") {
+      if (type === 'file_processing_complete') {
         setFiles((prev) =>
-          prev.map((file) => (file.id === payload.fileId ? { ...file, filename: payload.filename, size: payload.size, mimetype: payload.mimetype, status: payload.status, previewPath: payload.previewPath } : file))
+          prev.map((file) =>
+            file.id === payload.fileId
+              ? {
+                  ...file,
+                  filename: payload.filename,
+                  size: payload.size,
+                  mimetype: payload.mimetype,
+                  status: payload.status,
+                  previewPath: payload.previewPath,
+                }
+              : file
+          )
         );
       }
     }
 
-    window.addEventListener("ws-message", onWs);
-    return () => window.removeEventListener("ws-message", onWs);
+    window.addEventListener('ws-message', onWs);
+    return () => window.removeEventListener('ws-message', onWs);
   }, [taskId]);
 
   const handleToggle = async (sub) => {
@@ -81,34 +104,35 @@ export default function TaskDetails({ taskId }) {
       ...prev,
       subtasks: prev.subtasks.filter((s) => s.id !== sub.id),
     }));
-    toast.success("Task deleted", { position: "top-center" });
+    toast.success('Task deleted', { position: 'top-center' });
   };
 
   const handleFieldChange = (field, value) =>
     setUnsavedTask((prev) => ({ ...prev, [field]: value }));
 
   const handleSave = async () => {
-    if (unsavedTask.title.trim() === "") {
-      toast.error("Title cannot be empty", { position: "top-center" });
+    if (unsavedTask.title.trim() === '') {
+      toast.error('Title cannot be empty', { position: 'top-center' });
       return;
     }
     setTask(unsavedTask);
     await updateTask(unsavedTask.id, unsavedTask);
-    toast.success("Task saved", { position: "top-center" });
+    toast.success('Task saved', { position: 'top-center' });
   };
 
   const hasChanges =
     !!unsavedTask &&
     !!task &&
-    (unsavedTask.title !== task.title || unsavedTask.description !== task.description);
+    (unsavedTask.title !== task.title ||
+      unsavedTask.description !== task.description);
 
   const handleDeleteFile = async (file) => {
     try {
       await deleteAttachment(file.id);
       setFiles((prev) => prev.filter((f) => f.id !== file.id));
-      toast.success("File deleted", { position: "top-center" });
+      toast.success('File deleted', { position: 'top-center' });
     } catch (err) {
-      toast.error(err.message || "Delete error", { position: "top-center" });
+      toast.error(err.message || 'Delete error', { position: 'top-center' });
     }
   };
 
@@ -119,7 +143,7 @@ export default function TaskDetails({ taskId }) {
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = blobUrl;
       a.download = file.filename;
       document.body.appendChild(a);
@@ -128,20 +152,28 @@ export default function TaskDetails({ taskId }) {
 
       URL.revokeObjectURL(blobUrl);
     } catch (err) {
-      toast.error(err.message || "File download error", { position: "top-center" });
+      toast.error(err.message || 'File download error', {
+        position: 'top-center',
+      });
     }
   };
 
-  if (!unsavedTask) return <Typography align="center">Loading...</Typography>;
+  if (!unsavedTask) {
+    return <Typography align="center">Loading...</Typography>;
+  }
 
   return (
-    <Box sx={{ minHeight: "100vh" }}>
-      <Paper sx={{ p: 3, maxWidth: "700px", mx: "auto" }}>
+    <Box sx={{ minHeight: '100vh' }}>
+      <Paper sx={{ p: 3, maxWidth: '700px', mx: 'auto' }}>
         <Box display="flex" alignItems="center" gap={1} mb={2}>
-          <IconButton sx={{ color: "#000000" }} onClick={() => navigate(-1)}>
+          <IconButton sx={{ color: '#000000' }} onClick={() => navigate(-1)}>
             <FaArrowLeft />
           </IconButton>
-          <IconButton sx={{ color: "#000000" }} onClick={handleSave} disabled={!hasChanges}>
+          <IconButton
+            sx={{ color: '#000000' }}
+            onClick={handleSave}
+            disabled={!hasChanges}
+          >
             <FaSave />
           </IconButton>
         </Box>
@@ -151,7 +183,7 @@ export default function TaskDetails({ taskId }) {
         <TextField
           label="Title"
           value={unsavedTask.title}
-          onChange={(e) => handleFieldChange("title", e.target.value)}
+          onChange={(e) => handleFieldChange('title', e.target.value)}
           fullWidth
           variant="standard"
           sx={{ mb: 2 }}
@@ -162,21 +194,25 @@ export default function TaskDetails({ taskId }) {
         </Typography>
 
         <Typography variant="body2" sx={{ mb: 2 }}>
-          Status:{" "}
-          <span style={{ color: unsavedTask.done ? "green" : "red" }}>
-            {unsavedTask.done ? "Done" : "Not done"}
+          Status:{' '}
+          <span style={{ color: unsavedTask.done ? 'green' : 'red' }}>
+            {unsavedTask.done ? 'Done' : 'Not done'}
           </span>
         </Typography>
 
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" fontWeight="bold">Subtasks</Typography>
+          <Typography variant="h6" fontWeight="bold">
+            Subtasks
+          </Typography>
           <IconButton
             onClick={() => setShowForm(!showForm)}
             size="small"
             sx={{
-              mb: 1, borderRadius: 1, color: "#fff",
-              backgroundColor: "#22c55e",
-              "&:hover": { backgroundColor: "#16a34a" },
+              mb: 1,
+              borderRadius: 1,
+              color: '#fff',
+              backgroundColor: '#22c55e',
+              '&:hover': { backgroundColor: '#16a34a' },
             }}
           >
             <AddIcon />
@@ -199,7 +235,12 @@ export default function TaskDetails({ taskId }) {
         <Box mb={3}>
           {unsavedTask.subtasks?.length > 0 ? (
             unsavedTask.subtasks.map((sub) => (
-              <TaskItem key={sub.id} task={sub} onToggle={handleToggle} onDelete={handleDelete} />
+              <TaskItem
+                key={sub.id}
+                task={sub}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+              />
             ))
           ) : (
             <Typography color="textSecondary">No subtasks</Typography>
@@ -207,13 +248,24 @@ export default function TaskDetails({ taskId }) {
         </Box>
 
         <Divider sx={{ my: 2 }} />
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Typography variant="h6" fontWeight="bold">Attachments</Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={1}
+        >
+          <Typography variant="h6" fontWeight="bold">
+            Attachments
+          </Typography>
           <FileUploader taskId={unsavedTask.id} />
         </Box>
 
         {files.length > 0 ? (
-          <FileList files={files} onDelete={handleDeleteFile} onDownload={handleDownloadFile} />
+          <FileList
+            files={files}
+            onDelete={handleDeleteFile}
+            onDownload={handleDownloadFile}
+          />
         ) : (
           <Typography color="textSecondary">No attachments</Typography>
         )}
@@ -223,10 +275,15 @@ export default function TaskDetails({ taskId }) {
           minRows={3}
           placeholder="Description"
           value={unsavedTask.description}
-          onChange={(e) => handleFieldChange("description", e.target.value)}
+          onChange={(e) => handleFieldChange('description', e.target.value)}
           style={{
-            width: "100%", resize: "none", padding: "10px", fontSize: "14px",
-            borderRadius: "4px", border: "1px solid #ccc", backgroundColor: "#f9f9f9",
+            width: '100%',
+            resize: 'none',
+            padding: '10px',
+            fontSize: '14px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            backgroundColor: '#f9f9f9',
           }}
         />
       </Paper>

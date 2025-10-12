@@ -2,8 +2,10 @@ import { v4 as uuid } from 'uuid';
 import path from 'node:path';
 import { MINIO_BUCKET, minioClient } from '../minio/minioClient.js';
 import { FileRepository } from '../repositories/fileRepository.js';
-import { TAttachReq, TPresignReq } from '../validators/fileValidator.js';
+import { TAttachReq, TPresignReq, TFile } from '../validators/fileValidator.js';
 import { BucketItem } from 'minio';
+import { wsHub } from '../server.js';
+import { WSMessageType } from '../ws/wsHub.js';
 
 const MAX_BYTES = Number(process.env.FILE_MAX_BYTES ?? 5 * 1024 * 1024);
 
@@ -42,7 +44,6 @@ export class FileService {
       objectKey,
       60 * 2
     );
-
     return { uploadUrl, objectKey };
   }
 
@@ -71,18 +72,52 @@ export class FileService {
     );
     await minioClient.removeObject(MINIO_BUCKET, objectKey);
 
-    return this.fileRepository.createFile({
+    const created = await this.fileRepository.createFile({
       filename,
       mimetype: mimeToEnum(mimetype),
       size,
       path: finalKey,
       taskId,
     });
+
+    wsHub.broadcast({
+      type: WSMessageType.file_processing_started,
+      payload: { fileId: created.id, taskId: created.taskId },
+    });
+
+    // simulate long processing
+    this.simulateProcessing(created.id).catch(console.error);
+
+    return created;
+  }
+
+  private async simulateProcessing(fileId: number) {
+    await new Promise((r) => setTimeout(r, 4000));
+
+    const updated = await this.fileRepository.updateFile(fileId, {
+      status: 'ready',
+    });
+
+    const { url } = await this.getDownloadUrl(updated.id);
+    wsHub.broadcast({
+      type: WSMessageType.file_processing_complete,
+      payload: {
+        fileId: updated.id,
+        taskId: updated.taskId,
+        filename: updated.filename,
+        size: updated.size,
+        mimetype: updated.mimetype,
+        status: updated.status,
+        previewPath: url,
+      },
+    });
   }
 
   async getDownloadUrl(fileId: number) {
     const file = await this.fileRepository.findFileById(fileId);
-    if (!file) throw new Error('File not found');
+    if (!file) {
+      throw new Error('File not found');
+    }
 
     const url: string = await minioClient.presignedGetObject(
       MINIO_BUCKET,
@@ -92,13 +127,23 @@ export class FileService {
     return { url };
   }
 
-  getFilesByTask(taskId: number) {
-    return this.fileRepository.getFilesByTask(taskId);
+  async getFilesByTask(taskId: number) {
+    const files = await this.fileRepository.getFilesByTask(taskId);
+    return Promise.all(
+      files.map(async (file: TFile) => {
+        return {
+          ...file,
+          previewPath: await this.getDownloadUrl(file.id).then((r) => r.url),
+        };
+      })
+    );
   }
 
   async deleteFile(fileId: number) {
     const file = await this.fileRepository.findFileById(fileId);
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     await this.fileRepository.deleteFileById(fileId);
     await minioClient.removeObject(MINIO_BUCKET, file.path);
@@ -108,7 +153,7 @@ export class FileService {
     const files = await this.fileRepository.getFilesByTask(taskId);
     if (files.length === 0) return;
 
-    const deletePromises = files.map(async (file) => {
+    const deletePromises = files.map(async (file: TFile) => {
       try {
         await this.fileRepository.deleteFileById(file.id);
         return await minioClient.removeObject(MINIO_BUCKET, file.path);

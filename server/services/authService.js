@@ -10,30 +10,35 @@ export class AuthService {
   registerUser = async (userData) => {
     const parsedData = await CreateUser.parseAsync(userData);
     parsedData.password = await bcrypt.hash(parsedData.password, 6);
-    return this.authRepository.registerUser(parsedData);
+    const user = await this.authRepository.registerUser(parsedData);
+    user.token = await this.jwtSign(user);
+    return user;
   };
 
   loginUser = async (userData) => {
     const { email, password } = userData;
     const user = await this.authRepository.loginUser(email);
-
     if (!user) {
-      throw new Error('Invalid email');
+      throw new Error('Invalid email or password');
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const { password: hashedPassword } =
+      await this.authRepository.hashedPassword(email);
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
     if (!isPasswordValid) {
-      throw new Error('Invalid password');
+      throw new Error('Invalid email or password');
     }
+    user.token = await this.jwtSign(user);
+    return user;
+  };
 
-    user.token = jwt.sign(
+  jwtSign = async (user) => {
+    const { id: userId } = await this.authRepository.userId(user.email);
+    return jwt.sign(
       {
-        id: user.id,
+        id: userId,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
-
-    return user;
   };
 }
