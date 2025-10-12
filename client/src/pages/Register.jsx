@@ -27,7 +27,9 @@ export default function Register() {
     if (fieldErrors[e.target.name]) {
       setFieldErrors((prev) => ({ ...prev, [e.target.name]: '' }));
     }
-    if (generalError) setGeneralError('');
+    if (generalError) {
+      setGeneralError('');
+    }
   };
 
   const handleSubmit = async (e) => {

@@ -51,8 +51,9 @@ export default function TaskDetails({ taskId }) {
   useEffect(() => {
     function onWs(e) {
       const { type, payload } = e.detail || {};
-      if (!payload || payload.taskId !== Number(taskId)) return;
-      if (type === 'file_processing_started') {
+      if (!payload || payload.taskId !== Number(taskId)) {
+        return;
+      }
       if (type === WSMessageType.FILE_PROCESSING_STARTED) {
         setFiles((prev) => {
           return [
@@ -123,10 +124,8 @@ export default function TaskDetails({ taskId }) {
   };
 
   const hasChanges =
-    !!unsavedTask &&
-    !!task &&
-    (unsavedTask.title !== task.title ||
-      unsavedTask.description !== task.description);
+    unsavedTask?.title !== task.title ||
+    unsavedTask?.description !== task.description;
 
   const handleDeleteFile = async (file) => {
     try {
