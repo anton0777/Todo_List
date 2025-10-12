@@ -9,6 +9,8 @@ import {
 } from '../api/files.jsx';
 import { UploadButton } from '@bytescale/upload-widget-react';
 
+const bsApiKey = import.meta.env.VITE_BYTESCALE_API_KEY;
+
 export default function FileUploader({ taskId }) {
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +44,7 @@ export default function FileUploader({ taskId }) {
   };
 
   const options = {
-    apiKey: 'BYTESCALE_API_KEY',
+    apiKey: bsApiKey,
     mimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     maxFileCount: 1,
     maxFileSizeBytes: 5 * 1024 * 1024,
