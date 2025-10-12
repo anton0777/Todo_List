@@ -6,8 +6,8 @@ import TaskPage from './pages/TaskPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import NotFoundPage from './pages/NotFoundPage';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './components/AuthProvider.jsx';
-import { WsProvider } from './context/WsContext';
+import { AuthProvider } from './components/AuthProvider';
+import { WsProvider } from './components/WsProvider';
 
 function App() {
   return (

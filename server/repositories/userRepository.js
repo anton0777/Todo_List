@@ -13,7 +13,7 @@ export class UserRepository {
       select: {
         email: true,
         name: true,
-      }
+      },
     });
   };
 
