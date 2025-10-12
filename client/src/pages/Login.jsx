@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import {
-  Button,
-  TextField,
-  Container,
   Box,
-  Typography,
+  Button,
+  Container,
   Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
+import { toast } from 'react-toastify';
 
 export default function Login() {
   const { login } = useAuth();
@@ -18,9 +19,14 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(form);
+
+    try {
+      await login(form);
+    } catch (err) {
+      toast.error(err.message, { position: 'top-center' });
+    }
   };
 
   return (

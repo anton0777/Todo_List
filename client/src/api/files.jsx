@@ -39,4 +39,5 @@ export const getFile = async (url) => {
   if (!res.ok) {
     throw new Error(`File fetch failed: ${res.status}`);
   }
+  return res;
 };

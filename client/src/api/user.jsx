@@ -10,7 +10,7 @@ export const getUser = (token) =>
     },
   });
 
-export const updateUser = (id, data) =>
+export const updateUser = (_id, data) =>
   fetchWithErrorHandling(API, {
     method: 'PUT',
     body: JSON.stringify(data),

@@ -81,7 +81,7 @@ export class FileService {
     });
 
     wsHub.broadcast({
-      type: WSMessageType.file_processing_started,
+      type: WSMessageType.FILE_PROCESSING_STARTED,
       payload: { fileId: created.id, taskId: created.taskId },
     });
 
@@ -100,7 +100,7 @@ export class FileService {
 
     const { url } = await this.getDownloadUrl(updated.id);
     wsHub.broadcast({
-      type: WSMessageType.file_processing_complete,
+      type: WSMessageType.FILE_PROCESSING_COMPLETE,
       payload: {
         fileId: updated.id,
         taskId: updated.taskId,

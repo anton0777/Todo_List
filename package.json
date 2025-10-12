@@ -5,13 +5,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:b": "tsx watch server/server.js",
-    "dev:f": "cd client && vite",
+    "dev:f": "vite ./client",
     "dev": "concurrently 'npm run dev:b' 'npm run dev:f'",
     "db:init": "prisma migrate dev",
     "check:lint": "node_modules/.bin/eslint ./ server/ client/ --ext .ts",
     "check:lint:fix": "npm run check:lint -- --fix",
     "check:ts": "node_modules/.bin/tsc --noEmit",
-    "check:all": "npm run check:ts && npm run check:eslint"
+    "check:all": "npm run check:ts && npm run check:eslint",
+    "postinstall": "npm run db:init"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@bytescale/upload-widget-react": "^4.19.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.6",
@@ -78,7 +80,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
-    "vite": "^7.0.4"
+    "vite": "^7.1.9"
   },
   "overrides": {},
   "prisma": {

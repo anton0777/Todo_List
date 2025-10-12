@@ -9,7 +9,7 @@ export class AuthRepository {
       select: {
         email: true,
         name: true,
-      }
+      },
     });
   };
 
