@@ -24,6 +24,7 @@ import {
   getFileUrl,
   getFile,
 } from '../api/files.jsx';
+import { WSMessageType } from '../../../server/ws/wsHub.js';
 
 export default function TaskDetails({ taskId }) {
   const [task, setTask] = useState(null);
@@ -52,6 +53,7 @@ export default function TaskDetails({ taskId }) {
       const { type, payload } = e.detail || {};
       if (!payload || payload.taskId !== Number(taskId)) return;
       if (type === 'file_processing_started') {
+      if (type === WSMessageType.FILE_PROCESSING_STARTED) {
         setFiles((prev) => {
           return [
             {
@@ -67,7 +69,7 @@ export default function TaskDetails({ taskId }) {
         });
       }
 
-      if (type === 'file_processing_complete') {
+      if (type === WSMessageType.FILE_PROCESSING_COMPLETE) {
         setFiles((prev) =>
           prev.map((file) =>
             file.id === payload.fileId

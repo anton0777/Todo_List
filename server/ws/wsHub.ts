@@ -3,8 +3,8 @@ import type { Server } from 'http';
 import { ValueOf } from 'type-fest';
 
 export const WSMessageType = {
-  file_processing_complete: 'file_processing_complete',
-  file_processing_started: 'file_processing_started',
+  FILE_PROCESSING_COMPLETE: 'file_processing_complete',
+  FILE_PROCESSING_STARTED: 'file_processing_started',
 } as const;
 export type WSMessage<T> = {
   type: ValueOf<typeof WSMessageType>;
