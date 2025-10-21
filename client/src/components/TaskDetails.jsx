@@ -124,8 +124,8 @@ export default function TaskDetails({ taskId }) {
   };
 
   const hasChanges =
-    unsavedTask?.title !== task.title ||
-    unsavedTask?.description !== task.description;
+    unsavedTask?.title !== task?.title ||
+    unsavedTask?.description !== task?.description;
 
   const handleDeleteFile = async (file) => {
     try {
@@ -249,18 +249,17 @@ export default function TaskDetails({ taskId }) {
         </Box>
 
         <Divider sx={{ my: 2 }} />
-        <Box
+        <Typography
+          variant="h6"
+          fontWeight="bold"
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           mb={1}
         >
-          <Typography variant="h6" fontWeight="bold">
-            Attachments
-          </Typography>
-          <FileUploader taskId={unsavedTask.id} />
-        </Box>
-
+          Attachments
+        </Typography>
+        <FileUploader taskId={taskId} />
         {files.length > 0 ? (
           <FileList
             files={files}
