@@ -4,7 +4,7 @@ import tasks from './routes/tasks.js';
 import users from './routes/users.js';
 import auth from './routes/auth.js';
 import files from './routes/files.ts';
-import errorHandler from './middleware/error.js';
+import { errorHandler } from './middleware/errorHandler.ts';
 import { WSHub } from './ws/wsHub.js';
 
 dotenv.config({ path: './.env' });
