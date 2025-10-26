@@ -6,6 +6,7 @@ import auth from './routes/auth.js';
 import files from './routes/files.ts';
 import errorHandler from './middleware/error.js';
 import { WSHub } from './ws/wsHub.js';
+import { authMiddleware } from './middleware/authMiddleware.js';
 
 dotenv.config({ path: './.env' });
 
@@ -15,8 +16,8 @@ const app = express();
 app.use(express.json());
 
 app.use('/auth', auth);
-app.use('/todo', tasks);
-app.use('/user', users);
+app.use('/todo', authMiddleware, tasks);
+app.use('/user', authMiddleware, users);
 app.use('/files', files);
 
 app.use(errorHandler);
