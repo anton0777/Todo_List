@@ -1,16 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import { CreateFilePayload, UpdateFilePayload } from '../types/file.ts';
 
 export class FileRepository {
   constructor(private prismaClient: PrismaClient) {}
 
-  createFile(params: {
-    filename: string;
-    mimetype: 'image_jpeg' | 'image_png' | 'application_pdf';
-    size: number;
-    path: string;
-    taskId: number;
-  }) {
-    return this.prismaClient.file.create({ data: params });
+  createFile(data: CreateFilePayload) {
+    return this.prismaClient.file.create({ data });
   }
 
   findFileById(id: number) {
@@ -26,10 +21,8 @@ export class FileRepository {
     });
   }
 
-  updateFile = (
-    id: number,
-    data: Partial<{ status: 'processing' | 'ready' | 'failed' }>
-  ) => this.prismaClient.file.update({ where: { id }, data });
+  updateFile = (id: number, data: UpdateFilePayload) =>
+    this.prismaClient.file.update({ where: { id }, data });
 
   deleteFileById(id: number) {
     return this.prismaClient.file.delete({ where: { id } });
