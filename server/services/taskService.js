@@ -1,5 +1,4 @@
 import { CreateTask, UpdateTask } from '../validators/taskValidator.js';
-import jwt from 'jsonwebtoken';
 
 export class TaskService {
   constructor(taskRepository, fileService) {
@@ -7,32 +6,27 @@ export class TaskService {
     this.fileService = fileService;
   }
 
-  getTasks = async (headers) => {
-    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+  getTasks = async (userId) => {
     return this.taskRepository.getTasks(userId);
   };
 
-  getTask = async (headers, taskId) => {
-    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+  getTask = async (userId, taskId) => {
     taskId = parseInt(taskId);
     return this.taskRepository.getTask(userId, taskId);
   };
 
-  createTask = async (headers, taskData) => {
-    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+  createTask = async (userId, taskData) => {
     const parsedData = await CreateTask.parseAsync(taskData);
     return this.taskRepository.createTask(userId, parsedData);
   };
 
-  updateTask = async (headers, taskId, taskData) => {
-    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+  updateTask = async (userId, taskId, taskData) => {
     const parsedData = await UpdateTask.parseAsync(taskData);
     taskId = parseInt(taskId);
     return this.taskRepository.updateTask(userId, taskId, parsedData);
   };
 
-  deleteTask = async (headers, taskId) => {
-    const userId = this.getUserIdFromToken(headers.authorization.split(' ')[1]);
+  deleteTask = async (userId, taskId) => {
     taskId = parseInt(taskId);
     await this.deleteTaskWithSubtasks(userId, taskId);
   };
@@ -52,18 +46,5 @@ export class TaskService {
 
     await this.fileService.deleteFilesByTask(taskId);
     await this.taskRepository.deleteTask(userId, taskId);
-  };
-
-  getUserIdFromToken = (token) => {
-    if (!token) {
-      throw new Error('Unauthorized');
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded || !decoded.id) {
-      throw new Error('Invalid token');
-    }
-
-    return parseInt(decoded.id);
   };
 }

@@ -5,7 +5,7 @@ export class TaskController {
 
   getTasks = async (req, res, next) => {
     try {
-      const tasks = await this.taskService.getTasks(req.headers);
+      const tasks = await this.taskService.getTasks(req.user);
       res.status(200).json(tasks);
     } catch (err) {
       next(err);
@@ -14,7 +14,7 @@ export class TaskController {
 
   getTask = async (req, res, next) => {
     try {
-      const task = await this.taskService.getTask(req.headers, req.params.id);
+      const task = await this.taskService.getTask(req.user, req.params.id);
       res.status(200).json(task);
     } catch (err) {
       next(err);
@@ -23,7 +23,7 @@ export class TaskController {
 
   createTask = async (req, res, next) => {
     try {
-      const newTask = await this.taskService.createTask(req.headers, req.body);
+      const newTask = await this.taskService.createTask(req.user, req.body);
       res.status(201).json(newTask);
     } catch (err) {
       next(err);
@@ -33,7 +33,7 @@ export class TaskController {
   updateTask = async (req, res, next) => {
     try {
       const updatedTask = await this.taskService.updateTask(
-        req.headers,
+        req.user,
         req.params.id,
         req.body
       );
@@ -45,7 +45,7 @@ export class TaskController {
 
   deleteTask = async (req, res, next) => {
     try {
-      await this.taskService.deleteTask(req.headers, req.params.id);
+      await this.taskService.deleteTask(req.user, req.params.id);
       res.status(204).end();
     } catch (err) {
       next(err);

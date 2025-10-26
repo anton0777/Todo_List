@@ -14,7 +14,7 @@ export class UserController {
 
   getUser = async (req, res, next) => {
     try {
-      const user = await this.userService.getUser(req.headers);
+      const user = await this.userService.getUser(req.user);
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -32,7 +32,7 @@ export class UserController {
 
   updateUser = async (req, res, next) => {
     try {
-      const user = await this.userService.updateUser(req.headers, req.body);
+      const user = await this.userService.updateUser(req.user, req.body);
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -41,7 +41,7 @@ export class UserController {
 
   deleteUser = async (req, res, next) => {
     try {
-      await this.userService.deleteUser(req.headers);
+      await this.userService.deleteUser(req.user);
       res.status(204).end();
     } catch (err) {
       next(err);

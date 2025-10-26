@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { UpdateUser } from '../validators/userValidator.js';
 
@@ -12,8 +11,7 @@ export class UserService {
     return this.userRepository.getUsers();
   };
 
-  getUser = async (headers) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+  getUser = async (userId) => {
     return this.userRepository.getUser(userId);
   };
 
@@ -21,8 +19,7 @@ export class UserService {
     return this.userRepository.createUser(userData);
   };
 
-  updateUser = async (headers, userData) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
+  updateUser = async (userId, userData) => {
     const parsedData = await UpdateUser.parseAsync(userData);
     if (parsedData.password) {
       parsedData.password = await bcrypt.hash(parsedData.password, 6);
@@ -30,9 +27,8 @@ export class UserService {
     return this.userRepository.updateUser(userId, parsedData);
   };
 
-  deleteUser = async (headers) => {
-    const userId = getUserIdFromToken(headers.authorization.split(' ')[1]);
-    const tasks = await this.taskService.getTasks(headers);
+  deleteUser = async (userId) => {
+    const tasks = await this.taskService.getTasks(userId);
     await Promise.all(
       tasks.map((task) =>
         this.taskService.deleteTaskWithSubtasks(userId, task.id)
@@ -40,17 +36,4 @@ export class UserService {
     );
     return this.userRepository.deleteUser(userId);
   };
-}
-
-function getUserIdFromToken(token) {
-  if (!token) {
-    throw new Error('Unauthorized');
-  }
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decoded || !decoded.id) {
-    throw new Error('Invalid token');
-  }
-
-  return parseInt(decoded.id);
 }
