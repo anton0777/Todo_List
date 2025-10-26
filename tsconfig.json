@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     //  "noErrorTruncation": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
