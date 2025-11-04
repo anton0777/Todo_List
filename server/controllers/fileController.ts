@@ -15,10 +15,10 @@ export class FileController {
     }
   };
 
-  attach = async (req: Request, res: Response, next: NextFunction) => {
+  attach = async (req: any, res: Response, next: NextFunction) => {
     try {
       const parsed = await AttachReq.parseAsync(req.body);
-      const data = await this.fileService.attachToTask(parsed);
+      const data = await this.fileService.attachToTask(parsed, req.user);
       res.status(201).json(data);
     } catch (err) {
       next(err);

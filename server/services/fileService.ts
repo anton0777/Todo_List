@@ -4,8 +4,7 @@ import { MINIO_BUCKET, minioClient } from '../minio/minioClient.js';
 import { FileRepository } from '../repositories/fileRepository.js';
 import { TAttachReq, TPresignReq, TFile } from '../validators/fileValidator.js';
 import { BucketItem } from 'minio';
-import { wsHub } from '../server.js';
-import { WSMessageType } from '../ws/wsHub.js';
+import { IWSService, WSMessageType } from '../ws/IWSService.js';
 
 const MAX_BYTES = Number(process.env.FILE_MAX_BYTES ?? 5 * 1024 * 1024);
 
@@ -23,7 +22,10 @@ const mimeToEnum = (
 };
 
 export class FileService {
-  constructor(private fileRepository: FileRepository) {}
+  constructor(
+    private fileRepository: FileRepository,
+    private ws: IWSService
+  ) {}
 
   async presignedUpload(data: TPresignReq) {
     const { filename, mimetype, size } = data;
@@ -47,7 +49,7 @@ export class FileService {
     return { uploadUrl, objectKey };
   }
 
-  async attachToTask(data: TAttachReq) {
+  async attachToTask(data: TAttachReq, userId: number) {
     const { taskId, objectKey, filename, mimetype, size } = data;
 
     const stat = await minioClient
@@ -80,18 +82,18 @@ export class FileService {
       taskId,
     });
 
-    wsHub.broadcast({
+    this.ws.sendToUser(userId, {
       type: WSMessageType.FILE_PROCESSING_STARTED,
       payload: { fileId: created.id, taskId: created.taskId },
     });
 
     // simulate long processing
-    this.simulateProcessing(created.id).catch(console.error);
+    this.simulateProcessing(userId, created.id).catch(console.error);
 
     return created;
   }
 
-  private async simulateProcessing(fileId: number) {
+  private async simulateProcessing(userId: number, fileId: number) {
     await new Promise((r) => setTimeout(r, 4000));
 
     const updated = await this.fileRepository.updateFile(fileId, {
@@ -99,7 +101,7 @@ export class FileService {
     });
 
     const { url } = await this.getDownloadUrl(updated.id);
-    wsHub.broadcast({
+    this.ws.sendToUser(userId, {
       type: WSMessageType.FILE_PROCESSING_COMPLETE,
       payload: {
         fileId: updated.id,

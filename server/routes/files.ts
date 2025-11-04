@@ -3,10 +3,11 @@ import { PrismaClient } from '../generated/prisma/index.js';
 import { FileRepository } from '../repositories/fileRepository.js';
 import { FileService } from '../services/fileService.js';
 import { FileController } from '../controllers/fileController.js';
+import { IWSService } from '../ws/IWSService.js';
 
 const prismaClient = new PrismaClient();
 const fileRepository = new FileRepository(prismaClient);
-const fileService = new FileService(fileRepository);
+const fileService = new FileService(fileRepository, {} as IWSService);
 const fileController = new FileController(fileService);
 
 const router = express.Router();
