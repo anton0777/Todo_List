@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { UpdateUser } from '../validators/userValidator.js';
 
 export class UserService {
   constructor(userRepository, taskService) {
@@ -20,11 +19,10 @@ export class UserService {
   };
 
   updateUser = async (userId, userData) => {
-    const parsedData = await UpdateUser.parseAsync(userData);
-    if (parsedData.password) {
-      parsedData.password = await bcrypt.hash(parsedData.password, 6);
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 6);
     }
-    return this.userRepository.updateUser(userId, parsedData);
+    return this.userRepository.updateUser(userId, userData);
   };
 
   deleteUser = async (userId) => {

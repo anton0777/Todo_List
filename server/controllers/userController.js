@@ -1,3 +1,5 @@
+import { UpdateUser } from '../validators/userValidator.js';
+
 export class UserController {
   constructor(userService) {
     this.userService = userService;
@@ -32,7 +34,8 @@ export class UserController {
 
   updateUser = async (req, res, next) => {
     try {
-      const user = await this.userService.updateUser(req.user, req.body);
+      const parsedData = await UpdateUser.parseAsync(req.body);
+      const user = await this.userService.updateUser(req.user, parsedData);
       res.status(200).json(user);
     } catch (err) {
       next(err);

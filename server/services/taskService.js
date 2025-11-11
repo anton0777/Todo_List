@@ -1,5 +1,3 @@
-import { CreateTask, UpdateTask } from '../validators/taskValidator.js';
-
 export class TaskService {
   constructor(taskRepository, fileService) {
     this.taskRepository = taskRepository;
@@ -16,18 +14,15 @@ export class TaskService {
   };
 
   createTask = async (userId, taskData) => {
-    const parsedData = await CreateTask.parseAsync(taskData);
-    return this.taskRepository.createTask(userId, parsedData);
+    return this.taskRepository.createTask(userId, taskData);
   };
 
   updateTask = async (userId, taskId, taskData) => {
-    const parsedData = await UpdateTask.parseAsync(taskData);
     taskId = parseInt(taskId);
-    return this.taskRepository.updateTask(userId, taskId, parsedData);
+    return this.taskRepository.updateTask(userId, taskId, taskData);
   };
 
   deleteTask = async (userId, taskId) => {
-    taskId = parseInt(taskId);
     await this.deleteTaskWithSubtasks(userId, taskId);
   };
 

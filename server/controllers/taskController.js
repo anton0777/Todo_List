@@ -1,3 +1,5 @@
+import { CreateTask, UpdateTask } from '../validators/taskValidator.js';
+
 export class TaskController {
   constructor(taskService) {
     this.taskService = taskService;
@@ -23,7 +25,8 @@ export class TaskController {
 
   createTask = async (req, res, next) => {
     try {
-      const newTask = await this.taskService.createTask(req.user, req.body);
+      const parsedData = await CreateTask.parseAsync(req.body);
+      const newTask = await this.taskService.createTask(req.user, parsedData);
       res.status(201).json(newTask);
     } catch (err) {
       next(err);
@@ -32,10 +35,11 @@ export class TaskController {
 
   updateTask = async (req, res, next) => {
     try {
+      const parsedData = await UpdateTask.parseAsync(req.body);
       const updatedTask = await this.taskService.updateTask(
         req.user,
         req.params.id,
-        req.body
+        parsedData
       );
       res.status(200).json(updatedTask);
     } catch (err) {
@@ -45,7 +49,8 @@ export class TaskController {
 
   deleteTask = async (req, res, next) => {
     try {
-      await this.taskService.deleteTask(req.user, req.params.id);
+      const taskId = parseInt(req.params.id);
+      await this.taskService.deleteTask(req.user, taskId);
       res.status(204).end();
     } catch (err) {
       next(err);
