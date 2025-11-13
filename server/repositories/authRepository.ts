@@ -1,9 +1,14 @@
+import { PrismaClient } from '@prisma/client';
+import { RegisterData } from '../types/auth.js';
+
 export class AuthRepository {
-  constructor(prisma) {
+  constructor(private prisma: PrismaClient) {
     this.prisma = prisma;
   }
 
-  registerUser = async (parsedDate) => {
+  async registerUser(
+    parsedDate: RegisterData
+  ): Promise<{ email: string; name: string }> {
     return this.prisma.user.create({
       data: parsedDate,
       select: {
@@ -11,9 +16,9 @@ export class AuthRepository {
         name: true,
       },
     });
-  };
+  }
 
-  loginUser = async (email) => {
+  async loginUser(email: string): Promise<{ email: string; name: string }> {
     return this.prisma.user.findUnique({
       where: { email },
       select: {
@@ -21,23 +26,23 @@ export class AuthRepository {
         name: true,
       },
     });
-  };
+  }
 
-  hashedPassword = async (email) => {
+  async hashedPassword(email: string): Promise<{ password: string }> {
     return this.prisma.user.findUnique({
       where: { email },
       select: {
         password: true,
       },
     });
-  };
+  }
 
-  userId = async (email) => {
+  async userId(email: string): Promise<{ id: number }> {
     return this.prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
       },
     });
-  };
+  }
 }

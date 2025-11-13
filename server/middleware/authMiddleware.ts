@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 
-export const authMiddleware = (req, res, next) => {
+export const authMiddleware = (
+  req: Request & { user?: number },
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.headers['authorization'];
 
   if (!token) {
@@ -9,7 +14,7 @@ export const authMiddleware = (req, res, next) => {
 
   const tokenWithoutBearer = token.split(' ')[1];
 
-  jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET!, (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
