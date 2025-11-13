@@ -19,14 +19,14 @@ const taskService = new TaskService(taskRepository, fileService);
 const userService = new UserService(userRepository, taskService);
 const userController = new UserController(userService);
 
-router.get('/', userController.getUser);
+router.get('/', userController.getUser.bind(userController));
 
 // router.get('/:id', userController.getUser)
 
-router.post('/', userController.createUser);
+router.post('/', userController.createUser.bind(userController));
 
-router.put('/', userController.updateUser);
+router.put('/', userController.updateUser.bind(userController));
 
-router.delete('/', userController.deleteUser);
+router.delete('/', userController.deleteUser.bind(userController));
 
 export default router;

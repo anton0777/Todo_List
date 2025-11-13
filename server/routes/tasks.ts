@@ -15,14 +15,14 @@ const fileService = new FileService(fileRepository);
 const taskService = new TaskService(taskRepository, fileService);
 const taskController = new TaskController(taskService);
 
-router.get('/', taskController.getTasks);
+router.get('/', taskController.getTasks.bind(taskController));
 
-router.get('/:id', taskController.getTask);
+router.get('/:id', taskController.getTask.bind(taskController));
 
-router.post('/', taskController.createTask);
+router.post('/', taskController.createTask.bind(taskController));
 
-router.put('/:id', taskController.updateTask);
+router.put('/:id', taskController.updateTask.bind(taskController));
 
-router.delete('/:id', taskController.deleteTask);
+router.delete('/:id', taskController.deleteTask.bind(taskController));
 
 export default router;
