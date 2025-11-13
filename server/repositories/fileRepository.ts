@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { File } from '../types/file.ts';
 
 export class FileRepository {
   constructor(private prismaClient: PrismaClient) {}
@@ -9,15 +10,15 @@ export class FileRepository {
     size: number;
     path: string;
     taskId: number;
-  }) {
+  }): File {
     return this.prismaClient.file.create({ data: params });
   }
 
-  findFileById(id: number) {
+  findFileById(id: number): File {
     return this.prismaClient.file.findUnique({ where: { id } });
   }
 
-  getFilesByTask(taskId: number) {
+  getFilesByTask(taskId: number): Array<File> {
     return this.prismaClient.file.findMany({
       where: { taskId },
       orderBy: {
@@ -26,12 +27,14 @@ export class FileRepository {
     });
   }
 
-  updateFile = (
+  updateFile(
     id: number,
     data: Partial<{ status: 'processing' | 'ready' | 'failed' }>
-  ) => this.prismaClient.file.update({ where: { id }, data });
+  ): File {
+    return this.prismaClient.file.update({ where: { id }, data });
+  }
 
-  deleteFileById(id: number) {
+  deleteFileById(id: number): void {
     return this.prismaClient.file.delete({ where: { id } });
   }
 }
