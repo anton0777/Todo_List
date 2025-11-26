@@ -11,16 +11,19 @@ const fileController = new FileController(fileService);
 
 const router = express.Router();
 
-router.post('/presign', fileController.presign);
+router.post('/presign', fileController.presign.bind(fileController));
 
-router.post('/attach', fileController.attach);
+router.post('/attach', fileController.attach.bind(fileController));
 
-router.get('/by-task/:taskId', fileController.getFilesByTask);
+router.get(
+  '/by-task/:taskId',
+  fileController.getFilesByTask.bind(fileController)
+);
 
-router.get('/:id/url', fileController.getDownloadUrl);
+router.get('/:id/url', fileController.getDownloadUrl.bind(fileController));
 
-router.delete('/:id', fileController.delete);
+router.delete('/:id', fileController.delete.bind(fileController));
 
-router.post('/cleanup', fileController.cleanup);
+router.post('/cleanup', fileController.cleanup.bind(fileController));
 
 export default router;

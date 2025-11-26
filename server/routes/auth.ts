@@ -11,8 +11,8 @@ const authRepository = new AuthRepository(prisma);
 const authService = new AuthService(authRepository);
 const authController = new AuthController(authService);
 
-router.post('/login', authController.loginUser);
+router.post('/login', authController.loginUser.bind(authController));
 
-router.post('/register', authController.registerUser);
+router.post('/register', authController.registerUser.bind(authController));
 
 export default router;

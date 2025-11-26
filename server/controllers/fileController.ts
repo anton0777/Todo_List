@@ -5,7 +5,11 @@ import { PresignReq, AttachReq } from '../validators/fileValidator.js';
 export class FileController {
   constructor(private fileService: FileService) {}
 
-  presign = async (req: Request, res: Response, next: NextFunction) => {
+  async presign(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const parsed = await PresignReq.parseAsync(req.body);
       const data = await this.fileService.presignedUpload(parsed);
@@ -13,9 +17,9 @@ export class FileController {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
-  attach = async (req: Request, res: Response, next: NextFunction) => {
+  async attach(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const parsed = await AttachReq.parseAsync(req.body);
       const data = await this.fileService.attachToTask(parsed);
@@ -23,9 +27,13 @@ export class FileController {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
-  getFilesByTask = async (req: Request, res: Response, next: NextFunction) => {
+  async getFilesByTask(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const taskId = parseInt(req.params.taskId);
       const data = await this.fileService.getFilesByTask(taskId);
@@ -33,9 +41,13 @@ export class FileController {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
-  getDownloadUrl = async (req: Request, res: Response, next: NextFunction) => {
+  async getDownloadUrl(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const id = parseInt(req.params.id);
       const data = await this.fileService.getDownloadUrl(id);
@@ -43,9 +55,9 @@ export class FileController {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const id = parseInt(req.params.id);
       await this.fileService.deleteFile(id);
@@ -53,14 +65,18 @@ export class FileController {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
-  cleanup = async (_req: Request, res: Response, next: NextFunction) => {
+  async cleanup(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const data = await this.fileService.cleanupTmp();
       res.status(200).json(data);
     } catch (err) {
       next(err);
     }
-  };
+  }
 }
